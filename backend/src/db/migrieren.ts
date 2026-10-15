@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import { drizzle } from 'drizzle-orm/mysql2';
 import { migrate } from 'drizzle-orm/mysql2/migrator';
-import mysql from 'mysql2/promise';
 import { konfig } from '../config.js';
+import { erstellePool } from './verbindung.js';
 
 // Spielt alle noch fehlenden Migrationen aus src/db/migrationen in die Datenbank ein.
 //   pnpm db:migrieren         → Hauptdatenbank (DB_NAME)
@@ -15,20 +15,17 @@ const testdatenbank = process.argv.includes('--test');
 const datenbank = testdatenbank ? konfig.DB_TEST_NAME : konfig.DB_NAME;
 const ordner = fileURLToPath(new URL('./migrationen', import.meta.url));
 
-const verbindung = await mysql.createConnection({
-  socketPath: konfig.DB_SOCKET,
-  user: konfig.DB_MIGRATION_USER,
-  password: konfig.DB_MIGRATION_PASSWORD,
-  database: datenbank,
-  timezone: 'Z',
+// Gleicher Pool-Aufbau wie in der Anwendung, also ebenfalls fest auf UTC.
+const migrationsPool = erstellePool({
+  benutzer: konfig.DB_MIGRATION_USER,
+  passwort: konfig.DB_MIGRATION_PASSWORD,
+  datenbank,
 });
 
 try {
-  // Zeitpunkte werden in UTC gespeichert (Konzeption 6.1).
-  await verbindung.query("SET time_zone = '+00:00'");
   console.log(`Migriere Datenbank ${datenbank} ...`);
-  await migrate(drizzle(verbindung), { migrationsFolder: ordner });
+  await migrate(drizzle(migrationsPool), { migrationsFolder: ordner });
   console.log('Fertig, alle Migrationen sind eingespielt.');
 } finally {
-  await verbindung.end();
+  await migrationsPool.end();
 }
