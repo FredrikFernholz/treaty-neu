@@ -1,9 +1,7 @@
 <script setup lang="ts">
+import { healthSchema, type Health } from '@shared/schemas/health.js';
 import { useQuery } from '@tanstack/vue-query';
 import { ref } from 'vue';
-
-// Antwort von GET /api/health (siehe backend/src/server.ts).
-type Health = { status: 'ok' | 'fehler'; datenbank: 'ok' | 'nicht erreichbar' };
 
 // Fragt das Backend ab. Auch eine 503-Antwort enthält einen lesbaren Zustand,
 // deshalb wird der Inhalt in beiden Fällen ausgewertet.
@@ -12,7 +10,9 @@ async function holeHealth(): Promise<Health> {
   if (antwort.status !== 200 && antwort.status !== 503) {
     throw new Error(`Backend antwortet mit Status ${antwort.status}`);
   }
-  return (await antwort.json()) as Health;
+  // Prüft die Antwort mit demselben Schema, das auch das Backend verwendet.
+  // Passt sie nicht, wirft parse einen Fehler, und die Seite zeigt ihn an.
+  return healthSchema.parse(await antwort.json());
 }
 
 const { data, error, isPending, refetch, isFetching } = useQuery({

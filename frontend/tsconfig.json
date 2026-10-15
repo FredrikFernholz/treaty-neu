@@ -10,7 +10,11 @@
     "noEmit": true,
     "jsx": "preserve",
     // Typen für import.meta.env, CSS-Importe und die global angemeldeten el-Komponenten
-    "types": ["vite/client", "element-plus/global"]
+    "types": ["vite/client", "element-plus/global"],
+    // Gemeinsamer Code aus dem Backend (nur lesen, keine Kopie). Gegenstück in vite.config.ts.
+    "paths": {
+      "@shared/*": ["../backend/src/shared/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]
 }

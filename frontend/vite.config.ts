@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig, loadEnv } from 'vite';
 
@@ -13,6 +14,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue()],
+    resolve: {
+      alias: {
+        // Gemeinsamer Code aus dem Backend (Regeln, Schemas, Rechte). Das Frontend liest
+        // ihn direkt dort und führt nie eine eigene Kopie. Gegenstück in tsconfig.json.
+        '@shared': fileURLToPath(new URL('../backend/src/shared', import.meta.url)),
+      },
+    },
     server: {
       host: '127.0.0.1',
       port: 5173,
