@@ -10,8 +10,10 @@ Es gab bereits einen ersten Umsetzungsversuch. Er wird **nicht** weitergeführt,
 - `docs/PRD_Treaty_2.0.md` – was Treaty fachlich tut
 - `docs/Konzeption_Treaty_2.0.md` – wie es technisch umgesetzt wird (Architektur, Datenmodell, Regeln, Rechte, Ausbaustufen)
 - `docs/Treaty_2.0_Felddokumentation.xlsx` – vollständiges Feldmodell je Modul
+- `docs/entscheidungen.md` – getroffene Entscheidungen des Nutzers und des Fachteams
+- `docs/abgleich.md` – noch offene Widersprüche zwischen den Unterlagen
 
-Bei Widersprüchen gilt: Konzeption Abschnitt 16 (Entscheidungsbedarf) wird **nicht** eigenmächtig entschieden, sondern dem Nutzer vorgelegt.
+**Vorrangregel.** `docs/entscheidungen.md` geht allen anderen Dokumenten vor, auch PRD, Konzeption, Felddokumentation, Entwicklerdoku und dieser Datei. Ist ein Widerspruch zwischen Dokumenten dort noch nicht entschieden, wird er als Punkt in `docs/abgleich.md` eingetragen und dem Nutzer vorgelegt. Es gilt **keine** pauschale Regel „neueres Dokument gewinnt“. Konzeption Abschnitt 16 (Entscheidungsbedarf) wird ebenfalls **nicht** eigenmächtig entschieden, sondern dem Nutzer vorgelegt.
 
 ---
 
@@ -134,9 +136,9 @@ Reine Funktionen ohne Datenbankzugriff, vollständig mit Vitest-Tabellentests ab
 
 ### Regeln (Details in Konzeption Abschnitt 7)
 
-- **Arbeitstage:** Mo–Fr. Funktion nimmt einen optionalen Feiertagskalender entgegen (Entscheidung offen, Abschnitt 16 Nr. 1).
+- **Arbeitstage:** Mo–Fr, Feiertage spielen keine Rolle (Entscheidung 15.10.2026). Der optionale Feiertagsparameter bleibt, eine Feiertagsliste wird nicht eingebaut. Der Ausgangstag zählt nicht mit.
 - **Nächster Donnerstag:** Ist das Datum ein Donnerstag, bleibt es; sonst folgender Donnerstag.
-- **WV-Datum bei echtem Statuswechsel** (Arbeitstage ab Wechseltag, ggf. auf Donnerstag):
+- **WV-Datum bei echtem Statuswechsel** (Arbeitstage nach dem Wechseltag, ggf. auf Donnerstag):
 
 | Status | Arbeitstage | Donnerstag |
 |---|---|---|
@@ -150,7 +152,7 @@ Reine Funktionen ohne Datenbankzugriff, vollständig mit Vitest-Tabellentests ab
 | 1. Erinnerung | 20 | ja |
 | 2. Erinnerung | 10 | ja |
 | 3. Erinnerung | 10 | ja |
-| 4. Erinnerung | 15 | ja |
+| 4. Erinnerung | 10 (Entscheidung 15.10.2026, nicht 15) | ja |
 | abgeschlossen | kein WV-Datum | – |
 
 - **Ampel eines Falls** (Arbeitstage seit letzter Statusänderung; abgeschlossen immer grün):
@@ -177,13 +179,16 @@ Reine Funktionen ohne Datenbankzugriff, vollständig mit Vitest-Tabellentests ab
 
 1. **Grundlagen:** Anmeldung (argon2id, min. 12 Zeichen, Sperre nach Fehlversuchen, serverseitige Sitzungen, Cookie HttpOnly/Secure/SameSite=Strict, Timeout 8 h Inaktivität / 12 h max.), Benutzerverwaltung, Rechtematrix mit additiven Zusatzrechten in `shared/rechte`, Prüfung an jeder Route (403). TOTP erst später, Feld `totp_secret` aber anlegen.
 2. **Stammdaten:** Mandanten, Leistungskatalog, Zuordnung je Mandant, Standorte, PLZ-Liste, Hausverwaltungen, Kontakte, Kontaktdatenbank als VIEW.
-3. **Betriebskosten und Aufgaben:** inkl. Check-Aufgabe in derselben Transaktion, Historie als Anfügetabelle, Kommentare + WebSocket `/ws`, Dateiablage, Prüfbogen.
+3. **Betriebskosten und Aufgaben:** inkl. Check-Aufgabe in derselben Transaktion, Historie als Anfügetabelle, Kommentare + WebSocket `/ws`, Dateiablage. Der Prüfbogen wird vorerst nicht umgesetzt (Entscheidung 15.10.2026).
 4. **Mieten und Schriftverkehr:** PDF-Briefe, E-Mail-Entwürfe (mailto, .eml mit `X-Unsent: 1`).
+   - **Vertragsmanagement** folgt als eigene Ausbaustufe direkt nach Mieten (Entscheidung 15.10.2026). Die Nummern 5 bis 7 bleiben wie in Konzeption Abschnitt 17.
 5. **Office:** Zeiterfassung mit Server-Timer, Rechnungen, Festschreiben mit lückenloser Nummer `RE-JAHR-NNNN`, ZUGFeRD EN 16931 (Chromium → Ghostscript PDF/A-3b → pdf-lib, Prüfung mit Mustang-Validator im Build), Storno, CSV (Semikolon, Dezimalkomma, UTF-8 mit BOM).
 6. **Auswertungen:** fünf Tabs, Excel-/PDF-Export serverseitig, lange Exporte im Worker.
 7. **Migration und Umstellung** (Altsystem nur lesend, in Node).
 
 Jede Stufe endet mit grünen Tests und einer kurzen Zusammenfassung für den Nutzer.
+
+Weitere Wünsche aus Entwicklerdoku und Geschäftsführungsvorgabe (Texterkennung, automatischer Widerspruch, Matching, Kunden-Upload, n8n/make) kommen erst nach dem Grundsystem (Entscheidung 15.10.2026).
 
 ---
 
