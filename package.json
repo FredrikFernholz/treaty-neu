@@ -9,7 +9,8 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "lizenzen": "pnpm licenses list"
+    "lizenzen": "pnpm --dir backend licenses list && pnpm --dir frontend licenses list",
+    "lizenzen:laufzeit": "pnpm --dir backend licenses list --prod && pnpm --dir frontend licenses list --prod"
   },
   "devDependencies": {
     "typescript": "~6.0.3"
