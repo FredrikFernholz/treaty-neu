@@ -1,0 +1,13 @@
+{
+  // Backend-Einstellungen, Grundlage ist die gemeinsame tsconfig.base.json.
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    // Node.js-Modulsystem (ES-Module, Importe mit Dateiendung .js)
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}
