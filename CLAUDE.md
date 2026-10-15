@@ -25,6 +25,13 @@ Der Nutzer muss jede Zeile verstehen und später selbst warten können. Deshalb:
 4. **Erklärende Kommentare** im Code auf Deutsch, dort wo die Fachlogik nicht offensichtlich ist (vor allem in den Geschäftsregeln).
 5. **Jede Geschäftsregel bekommt Tests**, bevor sie verwendet wird.
 6. **Nichts löschen oder mit sudo verändern, ohne zu fragen.** Insbesondere den Altordner nie löschen.
+7. **Fremde Prozesse nie beenden.** Prozesse, die Claude nicht selbst gestartet hat, werden nicht beendet, auch wenn sie einen benötigten Port belegen. Stattdessen den Nutzer fragen.
+
+### Prüfbefehle
+
+- Server, die für einen Prüfschritt im Hintergrund laufen, immer mit `< /dev/null` starten, sonst hält die Shell Vite an und der Port bleibt belegt. Am Ende mit `kill` beenden und prüfen, dass die Ports wieder frei sind (z. B. `ss -ltn | grep -E ':3001 |:5173 '` ohne Ausgabe).
+- Für Tests im Browser stattdessen Befehle für zwei Terminals ohne `&` angeben, Backend zuerst. Beendet wird dann jeweils mit Strg+C.
+- Immer vollständige Pfade verwenden, nie ein vorheriges `cd` voraussetzen.
 
 ---
 

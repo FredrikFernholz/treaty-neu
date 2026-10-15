@@ -1,0 +1,16 @@
+{
+  // Frontend-Einstellungen, Grundlage ist die gemeinsame tsconfig.base.json.
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    // Browser-Umgebung: DOM-Typen zusätzlich zu den Sprachfunktionen
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    // Vite bündelt selbst, TypeScript prüft nur
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "jsx": "preserve",
+    // Typen für import.meta.env, CSS-Importe und die global angemeldeten el-Komponenten
+    "types": ["vite/client", "element-plus/global"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}
