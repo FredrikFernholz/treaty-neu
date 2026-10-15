@@ -1,0 +1,5 @@
+# pnpm-Workspace: hält Backend und Frontend in einem Repository zusammen.
+# Jeder hier aufgeführte Ordner ist ein eigenes Projekt mit eigener package.json.
+packages:
+  - backend
+  - frontend

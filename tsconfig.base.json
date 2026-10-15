@@ -1,0 +1,28 @@
+{
+  // Gemeinsame TypeScript-Einstellungen für Backend und Frontend.
+  // Die beiden Projekte erben davon per "extends" und ergänzen nur,
+  // was sich unterscheidet (Modulsystem, Ausgabeordner, DOM-Typen).
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+
+    // Strenge Typprüfung
+    "strict": true,
+    // Zugriff auf Array-Elemente und Objekt-Schlüssel kann undefined liefern
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Jede Datei muss für sich übersetzbar sein (nötig für tsx und Vite)
+    "isolatedModules": true,
+    // Reine Typ-Importe müssen als "import type" geschrieben werden
+    "verbatimModuleSyntax": true,
+
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  }
+}

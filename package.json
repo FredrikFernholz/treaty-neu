@@ -1,0 +1,17 @@
+{
+  "name": "treaty",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Treaty 2.0, interne Plattform der ADH Deutschland GmbH",
+  "type": "module",
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "lizenzen": "pnpm licenses list"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}
