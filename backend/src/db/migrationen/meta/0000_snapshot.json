@@ -1,0 +1,144 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "587caf05-a1d0-4bb0-8cbb-1d5ab4c4e1e1",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "benutzer": {
+      "name": "benutzer",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "kuerzel": {
+          "name": "kuerzel",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "passwort_hash": {
+          "name": "passwort_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "berechtigung": {
+          "name": "berechtigung",
+          "type": "enum('administrator','sachbearbeiter')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "zeichnung": {
+          "name": "zeichnung",
+          "type": "enum('ppa','iv','ia','ohne')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'ohne'"
+        },
+        "bezeichnung": {
+          "name": "bezeichnung",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "totp_secret": {
+          "name": "totp_secret",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        "geaendert_am": {
+          "name": "geaendert_am",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "benutzer_id": {
+          "name": "benutzer_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "benutzer_kuerzel_unique": {
+          "name": "benutzer_kuerzel_unique",
+          "columns": [
+            "kuerzel"
+          ]
+        },
+        "benutzer_email_unique": {
+          "name": "benutzer_email_unique",
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}

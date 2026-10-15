@@ -12,6 +12,18 @@ const konfigSchema = z.object({
   // Umgebungsvariablen sind immer Text, deshalb "coerce" (wandelt "3000" in 3000 um).
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+
+  // Datenbank. Die Werte gibt deploy/mysql/setup.sh einmalig aus.
+  // Verbunden wird über den lokalen Unix-Socket, nicht über TCP.
+  DB_SOCKET: z.string().min(1).default('/var/run/mysqld/mysqld.sock'),
+  DB_NAME: z.string().min(1),
+  DB_TEST_NAME: z.string().min(1),
+  // Benutzer der laufenden Anwendung: darf nur Daten lesen und schreiben.
+  DB_APP_USER: z.string().min(1),
+  DB_APP_PASSWORD: z.string().min(1),
+  // Benutzer für Migrationen: darf das Schema ändern, wird nur von db:migrieren genutzt.
+  DB_MIGRATION_USER: z.string().min(1),
+  DB_MIGRATION_PASSWORD: z.string().min(1),
 });
 
 export type Konfig = z.infer<typeof konfigSchema>;
