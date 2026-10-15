@@ -61,6 +61,8 @@ Der Nutzer muss jede Zeile verstehen und später selbst warten können. Deshalb:
 
 Die Konzeption nennt an einigen Stellen noch `/home/ccode/treaty` als Projektordner. Gemeint ist immer `/home/treaty-neu`.
 
+MySQL-Namen des neuen Systems sind die Datenbanken `treaty_neu` und `treaty_neu_test` sowie die Benutzer `treaty_neu_app` (nur Daten) und `treaty_neu_migration` (Schema). Die Namen `treaty`, `treaty_test` und `treaty_app` gehören dem noch laufenden Altsystem und werden nicht angefasst. Wo die Konzeption `treaty_test` nennt, ist `treaty_neu_test` gemeint.
+
 Die Symlinks unter `/var/www/treaty` und die bestehende systemd-Unit zeigen noch auf den Altordner. Sie werden **erst im Betriebsschritt** und nur nach Rückfrage auf `/home/treaty-neu` umgestellt.
 
 ### Git-Regeln
@@ -105,7 +107,7 @@ Reihenfolge, jeweils mit Prüfschritt:
 1. **Workspace:** `pnpm-workspace.yaml`, Wurzel-`package.json`, gemeinsame `tsconfig.base.json` (strict).
 2. **Backend minimal:** Fastify auf `127.0.0.1:3000`, nur Route `GET /api/health` → `{ status: "ok" }`. Start mit `tsx`. Prüfen per `curl`.
 3. **Konfiguration:** `.env` (nicht im Repo) + `.env.example`. Werte mit Zod beim Start validieren. Keine Zugangsdaten im Code.
-4. **Datenbank:** Drizzle mit mysql2, eigener App-Benutzer ohne Schemarechte, getrennter Migrationsbenutzer. Eine erste Tabelle `benutzer` als Migration. `/api/health` prüft zusätzlich die DB-Verbindung. Testdatenbank `treaty_test` getrennt anlegen (`deploy/mysql/setup.sh`).
+4. **Datenbank:** Drizzle mit mysql2, eigener App-Benutzer ohne Schemarechte, getrennter Migrationsbenutzer. Eine erste Tabelle `benutzer` als Migration. `/api/health` prüft zusätzlich die DB-Verbindung. Testdatenbank `treaty_neu_test` getrennt anlegen (`deploy/mysql/setup.sh`).
 5. **Frontend minimal:** Vite + Vue 3 + TypeScript, Element Plus mit deutscher Locale, Vue Router, Pinia, TanStack Query. Eine Startseite ruft `/api/health` auf und zeigt das Ergebnis. Vite-Proxy `/api` → `http://127.0.0.1:3000`.
 6. **Gemeinsamer Code:** Frontend bindet `backend/src/shared` per Pfad-Alias ein (nur lesen, keine Kopie). Mit einer Mini-Funktion nachweisen, dass beide Seiten sie nutzen.
 7. **Lizenzprüfung** für Frontend und Backend, Ergebnis dem Nutzer zeigen.
