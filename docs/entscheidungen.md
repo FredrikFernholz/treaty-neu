@@ -168,3 +168,17 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Beim Beenden einer Sitzung laufen Löschen und Protokolleintrag in einer gemeinsamen Transaktion. Protokolliert wird nur, wenn das Löschen tatsächlich eine Sitzung entfernt hat, damit gleichzeitige Anfragen keinen doppelten Eintrag erzeugen.
 
 **Auswirkung.** `beendeAlleSitzungen` in `backend/src/modules/anmeldung/sitzungen.ts` hat dafür die Option `ausserSitzungId`. Passwortwechsel und Einmalpasswort selbst entstehen in den Teilschritten 7 und 9.
+
+## 16.10.2026, Sitzungscookie, Zugriffsprüfung und Anmeldefehler
+
+**Anlass.** Konzeption 9 beschreibt Sitzungscookie und Schutz schreibender Anfragen nur in Grundzügen. Für die Umsetzung von Teilschritt 7 waren Name und Eigenschaften des Cookies, der Pflicht-Header, die Fehlercodes und das Verhalten bei Anmeldefehlern festzulegen.
+
+**Entscheidung.**
+- Für Cookies wird das offizielle Plugin `@fastify/cookie` verwendet (MIT, Lizenz nach Installation geprüft).
+- Das Sitzungscookie heißt `__Host-treaty_sitzung` und ist HttpOnly, Secure, SameSite=Strict mit Path `/`, ohne Domain. Es bekommt kein Ablaufdatum, ist also ein Sitzungscookie des Browsers. Die Grenzen von 8h ohne Aktivität und 12h insgesamt erzwingt der Server. Sollte das Präfix `__Host-` in Teilschritt 10 über localhost Probleme machen, wird das gemeldet.
+- Schreibende Anfragen (POST, PUT, PATCH, DELETE) unter `/api/v1` brauchen den Header `X-Treaty: 1`, sonst antwortet der Server mit 403.
+- Ohne gültige Sitzung antwortet der Server mit 401, bei einem nach der Rechtematrix nicht erlaubten Bereich mit 403. Solange ein Passwortwechsel nötig ist, sind nur „ich“, „Passwort ändern“ und „Abmelden“ erlaubt.
+- Anmeldefehler verraten nicht, ob das Kürzel existiert. Unbekanntes Kürzel, falsches Passwort und deaktiviertes Konto ergeben dieselbe Meldung. Bei unbekanntem Kürzel wird trotzdem gegen einen festen Platzhalter-Hash geprüft, damit die Antwortzeit gleich bleibt. Im Sicherheitsprotokoll steht der echte Grund.
+- Greift die Fehlversuchssperre, antwortet der Server mit 429 und dem Header `Retry-After`.
+
+**Auswirkung.** Jede Route unter `/api/v1` muss erklären, welchen Zugriff sie verlangt. Eine Route ohne diese Angabe lässt den Start scheitern, statt still offen zu sein. Umgesetzt in Teilschritt 7b (Zugriffsprüfung) und 7c (Anmelderouten).
