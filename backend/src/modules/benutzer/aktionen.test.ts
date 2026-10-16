@@ -254,6 +254,45 @@ describe('Sitzung beenden', () => {
   });
 });
 
+describe('diese Sitzung', () => {
+  test('beim eigenen Konto ist genau die Sitzung der Anfrage als aktuell markiert', async () => {
+    const a = await admin();
+    await erzeugeSitzung(db, a.id, { ip: '198.51.100.7' }, new Date()); // zweite Sitzung, etwa ein anderer Browser
+    const antwort = await app.inject({ method: 'GET', url: `/api/v1/benutzer/${a.id}`, cookies: a.cookies });
+    const sitzungen = antwort.json().sitzungen as { ip: string; aktuell: boolean }[];
+    expect(sitzungen).toHaveLength(2);
+    expect(sitzungen.filter((s) => s.aktuell)).toMatchObject([{ ip: '192.0.2.10' }]);
+  });
+
+  test('bei einem anderen Konto ist keine Sitzung markiert', async () => {
+    const a = await admin();
+    const s = await neuerBenutzer('TBXSB');
+    const antwort = await app.inject({ method: 'GET', url: `/api/v1/benutzer/${s.id}`, cookies: a.cookies });
+    expect((antwort.json().sitzungen as { aktuell: boolean }[]).map((x) => x.aktuell)).toEqual([false]);
+  });
+
+  test('auch die Antwort nach dem Ändern markiert die eigene Sitzung', async () => {
+    const a = await admin();
+    const [stand] = await db.select().from(benutzer).where(eq(benutzer.id, a.id));
+    const antwort = await app.inject({
+      method: 'PUT',
+      url: `/api/v1/benutzer/${a.id}`,
+      headers: MIT_HEADER,
+      cookies: a.cookies,
+      payload: {
+        version: stand!.version,
+        name: 'Neuer Name',
+        email: stand!.email,
+        berechtigung: 'administrator',
+        zeichnung: 'ohne',
+        bezeichnung: null,
+        zusatzrechte: [],
+      },
+    });
+    expect((antwort.json().sitzungen as { aktuell: boolean }[]).map((x) => x.aktuell)).toEqual([true]);
+  });
+});
+
 describe('A-19: nur mit dem Zusatzrecht nutzerverwaltung', () => {
   test('kann keinen Administrator deaktivieren', async () => {
     const v = await verwalter();

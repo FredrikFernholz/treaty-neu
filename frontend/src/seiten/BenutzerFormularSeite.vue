@@ -1,18 +1,29 @@
 <script setup lang="ts">
 import { ZUSATZRECHTE, ZUSATZRECHT_BEZEICHNUNG, type Berechtigung, type Zusatzrecht } from '@shared/rechte/rechtematrix.js';
-import { ZEICHNUNGEN, type BenutzerDetail } from '@shared/schemas/benutzer.js';
+import { ZEICHNUNGEN, type BenutzerDetail, type Sitzungsinfo } from '@shared/schemas/benutzer.js';
 import { useQueryClient } from '@tanstack/vue-query';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { aendereBenutzer, kuerzelVorschlag, ladeBenutzer, legeBenutzerAn } from '../api/benutzer';
+import {
+  aendereBenutzer,
+  beendeSitzung,
+  kuerzelVorschlag,
+  ladeBenutzer,
+  legeBenutzerAn,
+  setzeAktiv,
+  vergibEinmalpasswort,
+} from '../api/benutzer';
 import { ApiFehlerAntwort } from '../api/client';
 import EinmalpasswortDialog from '../komponenten/EinmalpasswortDialog.vue';
 import KonfliktDialog from '../komponenten/KonfliktDialog.vue';
 import { useSitzung } from '../stores/sitzung';
 import { BERECHTIGUNG_BEZEICHNUNG, ZEICHNUNG_BEZEICHNUNG } from '../texte';
+import { zeitpunkt } from '../zeit';
 
-// Benutzer anlegen (/benutzer/neu) und bearbeiten (/benutzer/:id), Teilschritt 10c.
+// Benutzer anlegen (/benutzer/neu) und bearbeiten (/benutzer/:id), Teilschritte 10c und 10d.
+// Beim Bearbeiten zusätzlich: Konto deaktivieren oder aktivieren, Einmalpasswort neu
+// vergeben und laufende Sitzungen beenden.
 //
 // Die Oberfläche bildet die Regeln aus A-19 nach, damit niemand Knöpfe sieht, die der
 // Server ohnehin ablehnt. Maßgeblich bleibt der Server:
@@ -127,6 +138,94 @@ async function speichern() {
   }
 }
 
+const aktionLaeuft = ref(false);
+/** Deaktivieren und Einmalpasswort: nicht für das eigene Konto und nicht im Nur-Lesen. */
+const kontoAktionenErlaubt = computed(() => !istNeu.value && !nurLesen.value && !istSelbst.value);
+const sitzungenBeendbar = computed(() => !istNeu.value && !nurLesen.value);
+
+async function bestaetigt(titel: string, text: string, knopf: string): Promise<boolean> {
+  try {
+    await ElMessageBox.confirm(text, titel, { confirmButtonText: knopf, cancelButtonText: 'Abbrechen', type: 'warning' });
+    return true;
+  } catch {
+    return false; // Abbrechen oder Dialog geschlossen
+  }
+}
+
+/** Führt eine Aktion aus und lädt danach den aktuellen Stand, auch für die Liste. */
+async function aktion(ausfuehren: () => Promise<void>) {
+  formfehler.value = null;
+  aktionLaeuft.value = true;
+  try {
+    await ausfuehren();
+    await abfragen.invalidateQueries({ queryKey: ['benutzer'] });
+  } catch (f) {
+    zeigeFehler(f);
+  } finally {
+    aktionLaeuft.value = false;
+  }
+}
+
+async function aktivUmschalten() {
+  const b = geladen.value!;
+  if (
+    b.aktiv &&
+    !(await bestaetigt(
+      'Konto deaktivieren',
+      `${b.name} kann sich danach nicht mehr anmelden. Alle laufenden Sitzungen enden sofort.`,
+      'Deaktivieren',
+    ))
+  ) {
+    return;
+  }
+  await aktion(async () => {
+    uebernehme(await setzeAktiv(b.id, !b.aktiv, b.version));
+    ElMessage.success(b.aktiv ? 'Konto deaktiviert.' : 'Konto aktiviert.');
+  });
+}
+
+async function neuesEinmalpasswort() {
+  const b = geladen.value!;
+  const ok = await bestaetigt(
+    'Einmalpasswort vergeben',
+    `Das bisherige Passwort von ${b.name} gilt danach nicht mehr. Alle laufenden Sitzungen enden sofort.`,
+    'Vergeben',
+  );
+  if (!ok) return;
+  await aktion(async () => {
+    einmalpasswort.value = (await vergibEinmalpasswort(b.id)).einmalpasswort;
+    await laden();
+  });
+}
+
+async function sitzungBeenden(eintrag: Sitzungsinfo) {
+  const b = geladen.value!;
+  if (eintrag.aktuell) {
+    // Die eigene, gerade benutzte Sitzung: deutlicher nachfragen, danach direkt abmelden.
+    try {
+      await ElMessageBox.confirm(
+        'Das ist die Sitzung, mit der Sie gerade arbeiten. Sie werden sofort abgemeldet.',
+        'Diese Sitzung beenden',
+        { confirmButtonText: 'Beenden und abmelden', cancelButtonText: 'Abbrechen', type: 'error' },
+      );
+    } catch {
+      return;
+    }
+    await aktion(async () => {
+      await beendeSitzung(b.id, eintrag.id);
+      sitzung.vergessen();
+      await router.replace({ name: 'anmelden' });
+    });
+    return;
+  }
+  if (!(await bestaetigt('Sitzung beenden', `Diese Sitzung von ${b.name} endet sofort.`, 'Beenden'))) return;
+  await aktion(async () => {
+    await beendeSitzung(b.id, eintrag.id);
+    ElMessage.success('Sitzung beendet.');
+    await laden();
+  });
+}
+
 async function nachKonfliktNeuLaden() {
   konfliktOffen.value = false;
   formfehler.value = null;
@@ -163,7 +262,7 @@ async function einmalpasswortGeschlossen() {
       title="Dieses Konto ist deaktiviert."
     />
 
-    <el-form label-position="top" :disabled="nurLesen" @submit.prevent="speichern">
+    <el-form label-position="top" class="formular" :disabled="nurLesen" @submit.prevent="speichern">
       <el-form-item label="Name">
         <el-input v-model="formular.name" maxlength="100" @blur="schlageKuerzelVor" />
       </el-form-item>
@@ -211,6 +310,50 @@ async function einmalpasswortGeschlossen() {
     </el-form>
   </el-card>
 
+  <el-card v-if="geladen && !istNeu" class="karte" header="Konto">
+    <p>
+      <el-tag :type="geladen.aktiv ? 'success' : 'info'">{{ geladen.aktiv ? 'aktiv' : 'deaktiviert' }}</el-tag>
+      <el-tag v-if="geladen.passwortWechselNoetig" type="warning" class="zweites">Passwortwechsel offen</el-tag>
+    </p>
+    <div v-if="kontoAktionenErlaubt">
+      <el-button :type="geladen.aktiv ? 'danger' : 'success'" plain :loading="aktionLaeuft" @click="aktivUmschalten">
+        {{ geladen.aktiv ? 'Deaktivieren' : 'Aktivieren' }}
+      </el-button>
+      <el-button :loading="aktionLaeuft" @click="neuesEinmalpasswort">Einmalpasswort vergeben</el-button>
+    </div>
+    <p v-else-if="istSelbst" class="erlaeuterung">
+      Das eigene Konto lässt sich weder deaktivieren noch mit einem Einmalpasswort versehen. Ihr Passwort ändern Sie über
+      das Menü oben rechts.
+    </p>
+  </el-card>
+
+  <el-card v-if="geladen && !istNeu" class="karte" header="Angemeldet">
+    <el-table :data="geladen.sitzungen" empty-text="Keine laufende Sitzung" class="sitzungen">
+      <el-table-column width="130">
+        <template #default="{ row }">
+          <el-tag v-if="row.aktuell" type="primary" size="small">diese Sitzung</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="Angemeldet seit" width="170">
+        <template #default="{ row }">{{ zeitpunkt(row.erstelltAm) }}</template>
+      </el-table-column>
+      <el-table-column label="Zuletzt aktiv" width="170">
+        <template #default="{ row }">{{ zeitpunkt(row.letzteAktivitaetAm) }}</template>
+      </el-table-column>
+      <el-table-column label="Endet spätestens" width="170">
+        <template #default="{ row }">{{ zeitpunkt(row.laeuftAbAm) }}</template>
+      </el-table-column>
+      <el-table-column prop="ip" label="IP" width="140" />
+      <!-- Lange Browserkennungen werden gekürzt, vollständig im Tooltip. -->
+      <el-table-column prop="userAgent" label="Browser" min-width="160" show-overflow-tooltip />
+      <el-table-column v-if="sitzungenBeendbar" width="110">
+        <template #default="{ row }">
+          <el-button size="small" :loading="aktionLaeuft" @click="sitzungBeenden(row as Sitzungsinfo)">Beenden</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-card>
+
   <EinmalpasswortDialog :passwort="einmalpasswort" :kuerzel="formular.kuerzel" @geschlossen="einmalpasswortGeschlossen" />
   <KonfliktDialog
     :sichtbar="konfliktOffen"
@@ -222,7 +365,6 @@ async function einmalpasswortGeschlossen() {
 
 <style scoped>
 .karte {
-  max-width: 640px;
   margin-top: 16px;
 }
 .abstand {
@@ -232,6 +374,9 @@ async function einmalpasswortGeschlossen() {
   font-size: 12px;
   color: var(--el-text-color-secondary);
   width: 100%;
+}
+.zweites {
+  margin-left: 6px;
 }
 .schmal {
   width: 160px;

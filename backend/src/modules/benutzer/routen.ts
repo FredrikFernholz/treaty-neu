@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { db } from '../../db/zugriff.js';
-import { benutzerAendernSchema, benutzerAnlegenSchema } from '../../shared/schemas/benutzer.js';
+import { benutzerAendernSchema, benutzerAnlegenSchema, type BenutzerDetail } from '../../shared/schemas/benutzer.js';
 import { vergissKontoSperren, type Sperren } from '../anmeldung/routen.js';
 import { fehler } from '../anmeldung/zugriffspruefung.js';
 import { benutzerAuswahl, ladeBenutzer, listeBenutzer } from './benutzer.js';
@@ -41,6 +41,15 @@ const KEIN_ZWISCHENSPEICHER = 'no-store';
 
 function eingabefehler(antwort: FastifyReply, fehlerliste: z.ZodError) {
   return fehler(antwort, 400, { fehler: 'ungueltige_eingabe', meldung: fehlerliste.issues.map((i) => i.message).join(' ') });
+}
+
+/**
+ * Markiert in der Antwort die Sitzung, mit der die Anfrage gestellt wurde. So kann die
+ * Oberfläche "diese Sitzung" anzeigen und vor dem Beenden deutlicher nachfragen.
+ */
+function markiereAktuelleSitzung<T extends BenutzerDetail>(detail: T, anfrage: FastifyRequest): T {
+  const eigene = anfrage.angemeldet?.sitzungId;
+  return { ...detail, sitzungen: detail.sitzungen.map((s) => ({ ...s, aktuell: s.id === eigene })) };
 }
 
 /** Wandelt Verwaltungsfehler in die einheitliche Fehlerantwort um, andere Fehler gehen weiter. */
@@ -83,7 +92,7 @@ export function registriereBenutzerrouten(app: FastifyInstance, sperren: Sperren
     const eingabe = benutzerAendernSchema.safeParse(anfrage.body);
     if (!eingabe.success) return eingabefehler(antwort, eingabe.error);
     try {
-      return await aendereBenutzer(db, anfrage.angemeldet!, parameter.data.id, eingabe.data);
+      return markiereAktuelleSitzung(await aendereBenutzer(db, anfrage.angemeldet!, parameter.data.id, eingabe.data), anfrage);
     } catch (f) {
       return verwaltungsfehler(antwort, f);
     }
@@ -95,7 +104,10 @@ export function registriereBenutzerrouten(app: FastifyInstance, sperren: Sperren
     const eingabe = aktivSchema.safeParse(anfrage.body);
     if (!eingabe.success) return eingabefehler(antwort, eingabe.error);
     try {
-      return await setzeAktiv(db, anfrage.angemeldet!, parameter.data.id, eingabe.data, new Date());
+      return markiereAktuelleSitzung(
+        await setzeAktiv(db, anfrage.angemeldet!, parameter.data.id, eingabe.data, new Date()),
+        anfrage,
+      );
     } catch (f) {
       return verwaltungsfehler(antwort, f);
     }
@@ -143,6 +155,6 @@ export function registriereBenutzerrouten(app: FastifyInstance, sperren: Sperren
     }
     const gefunden = await ladeBenutzer(db, parameter.data.id);
     if (!gefunden) return fehler(antwort, 404, { fehler: 'nicht_gefunden', meldung: 'Diesen Benutzer gibt es nicht.' });
-    return gefunden;
+    return markiereAktuelleSitzung(gefunden, anfrage);
   });
 }

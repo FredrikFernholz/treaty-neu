@@ -70,6 +70,9 @@ export async function ladeBenutzer(db: DbZugriff, id: number): Promise<BenutzerD
       erstelltAm: s.erstelltAm.toISOString(),
       letzteAktivitaetAm: s.letzteAktivitaetAm.toISOString(),
       laeuftAbAm: s.laeuftAbAm.toISOString(),
+      // Welche Sitzung zur Anfrage gehört, weiß nur die Route. Sie setzt das Feld mit
+      // markiereAktuelleSitzung (routen.ts).
+      aktuell: false,
     })),
   };
 }

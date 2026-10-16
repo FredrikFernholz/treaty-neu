@@ -64,6 +64,8 @@ export const sitzungsinfoSchema = z.object({
   laeuftAbAm: z.string(),
   ip: z.string(),
   userAgent: z.string().nullable(),
+  /** true, wenn es die Sitzung ist, mit der die Anfrage gestellt wurde ("diese Sitzung"). */
+  aktuell: z.boolean(),
 });
 
 /** Antwort von GET /api/v1/benutzer/:id */

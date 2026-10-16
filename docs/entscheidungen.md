@@ -249,3 +249,15 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 **Entscheidung.** Das Präfix bleibt. Der Browsertest durch den Nutzer in Chrome über `http://localhost:5173` war erfolgreich. Das Cookie `__Host-treaty_sitzung` wurde mit Domain localhost, Path `/`, Ablauf „Sitzung“, HttpOnly, Secure und SameSite Strict gesetzt. Anmeldung mit Einmalpasswort, Pflichtwechsel, Neuladen der Seite, Abmelden und erneutes Anmelden funktionierten.
 
 **Auswirkung.** Keine Änderung nötig. Die Abläufe werden in Teilschritt 11 zusätzlich mit Playwright automatisiert geprüft.
+
+## 16.10.2026, Seitenrahmen und Breiten in der Oberfläche
+
+**Anlass.** Nach Teilschritt 10d waren einzelne Blöcke einer Seite unterschiedlich breit, etwa ein breiter Abschnitt „Angemeldet“ neben schmalen Formularblöcken. Das wirkte unruhig.
+
+**Entscheidung.** Für die ganze Anwendung und für alle künftigen Seiten gilt:
+- Es gibt einen gemeinsamen Seitenrahmen. Der Inhalt steht mittig in einer Spalte mit fester Höchstbreite (1160px), mit gleichem Rand links und rechts. Der Kopf richtet sich nach derselben Spalte.
+- Alle Blöcke (Karten) einer Seite sind gleich breit und füllen diese Spalte. Einzelne Seiten setzen keine eigene Breite für Karten.
+- Eingabefelder innerhalb eines Formulars dürfen schmaler sein (höchstens 480px je Feld, Klasse `formular`). Kurze Felder wie die Zeichnung bleiben kurz.
+- Anmelden und Passwort ändern dürfen eine eigene schmale Mitte haben.
+
+**Auswirkung.** Umgesetzt in `frontend/src/App.vue` (Klassen `seite`, `kopfinhalt`, `formular` und die Variablen `--treaty-seitenbreite`, `--treaty-feldbreite`) und auf allen bestehenden Seiten. Der Playwright-Test in Teilschritt 11 prüft bei 1920px Fensterbreite, dass es keine waagrechte Scrollleiste gibt und alle Karten einer Seite gleich breit sind.

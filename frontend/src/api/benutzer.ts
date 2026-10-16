@@ -35,3 +35,16 @@ export function legeBenutzerAn(eingabe: BenutzerAnlegen) {
 export function aendereBenutzer(id: number, eingabe: BenutzerAendern): Promise<BenutzerDetail> {
   return api('PUT', `/api/v1/benutzer/${id}`, { body: eingabe, schema: benutzerDetailSchema });
 }
+
+export function setzeAktiv(id: number, aktiv: boolean, version: number): Promise<BenutzerDetail> {
+  return api('PUT', `/api/v1/benutzer/${id}/aktiv`, { body: { aktiv, version }, schema: benutzerDetailSchema });
+}
+
+/** Neues Einmalpasswort. Steht nur in dieser Antwort, alle Sitzungen des Kontos enden. */
+export function vergibEinmalpasswort(id: number): Promise<{ einmalpasswort: string }> {
+  return api('POST', `/api/v1/benutzer/${id}/einmalpasswort`);
+}
+
+export function beendeSitzung(benutzerId: number, sitzungId: number): Promise<void> {
+  return api('DELETE', `/api/v1/benutzer/${benutzerId}/sitzungen/${sitzungId}`);
+}

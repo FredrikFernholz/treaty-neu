@@ -33,64 +33,66 @@ function zeilenklasse({ row }: { row: Benutzer }) {
     <h2>Nutzerverwaltung</h2>
     <el-button type="primary" @click="router.push({ name: 'benutzer-neu' })">Neuer Benutzer</el-button>
   </div>
-  <el-tabs v-model="reiter">
-    <el-tab-pane label="Benutzer" name="benutzer">
-      <el-alert v-if="error" type="error" :closable="false" :title="error.message" />
-      <el-table
-        v-else
-        v-loading="isPending"
-        :data="benutzer ?? []"
-        :row-class-name="zeilenklasse"
-        empty-text="Keine Benutzer"
-        class="anklickbar"
-        @row-click="(b: Benutzer) => router.push({ name: 'benutzer-bearbeiten', params: { id: b.id } })"
-      >
-        <el-table-column prop="kuerzel" label="Kürzel" width="100" />
-        <el-table-column label="Name" min-width="220">
-          <template #default="{ row }">
-            <div>{{ row.name }}</div>
-            <div v-if="zusaetzlich(row as Benutzer)" class="zusaetzlich">{{ zusaetzlich(row as Benutzer) }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="email" label="E-Mail" min-width="220" />
-        <el-table-column label="Berechtigung" width="170">
-          <template #default="{ row }">{{ BERECHTIGUNG_BEZEICHNUNG[row.berechtigung as Benutzer['berechtigung']] }}</template>
-        </el-table-column>
-        <el-table-column label="Zeichnung" width="110">
-          <template #default="{ row }">{{ ZEICHNUNG_BEZEICHNUNG[row.zeichnung as Benutzer['zeichnung']] }}</template>
-        </el-table-column>
-        <el-table-column label="Status" width="200">
-          <template #default="{ row }">
-            <el-tag v-if="!row.aktiv" type="info">deaktiviert</el-tag>
-            <el-tag v-else type="success">aktiv</el-tag>
-            <el-tag v-if="row.aktiv && row.passwortWechselNoetig" type="warning" class="zweites">Passwortwechsel offen</el-tag>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-tab-pane>
+  <el-card>
+    <el-tabs v-model="reiter">
+      <el-tab-pane label="Benutzer" name="benutzer">
+        <el-alert v-if="error" type="error" :closable="false" :title="error.message" />
+        <el-table
+          v-else
+          v-loading="isPending"
+          :data="benutzer ?? []"
+          :row-class-name="zeilenklasse"
+          empty-text="Keine Benutzer"
+          class="anklickbar"
+          @row-click="(b: Benutzer) => router.push({ name: 'benutzer-bearbeiten', params: { id: b.id } })"
+        >
+          <el-table-column prop="kuerzel" label="Kürzel" width="100" />
+          <el-table-column label="Name" min-width="220">
+            <template #default="{ row }">
+              <div>{{ row.name }}</div>
+              <div v-if="zusaetzlich(row as Benutzer)" class="zusaetzlich">{{ zusaetzlich(row as Benutzer) }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="email" label="E-Mail" min-width="220" />
+          <el-table-column label="Berechtigung" width="170">
+            <template #default="{ row }">{{ BERECHTIGUNG_BEZEICHNUNG[row.berechtigung as Benutzer['berechtigung']] }}</template>
+          </el-table-column>
+          <el-table-column label="Zeichnung" width="110">
+            <template #default="{ row }">{{ ZEICHNUNG_BEZEICHNUNG[row.zeichnung as Benutzer['zeichnung']] }}</template>
+          </el-table-column>
+          <el-table-column label="Status" width="200">
+            <template #default="{ row }">
+              <el-tag v-if="!row.aktiv" type="info">deaktiviert</el-tag>
+              <el-tag v-else type="success">aktiv</el-tag>
+              <el-tag v-if="row.aktiv && row.passwortWechselNoetig" type="warning" class="zweites">Passwortwechsel offen</el-tag>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
 
-    <el-tab-pane label="Rechtematrix" name="rechte">
-      <p class="erlaeuterung">
-        Wer welchen Bereich nutzen darf. Zusatzrechte gelten nur zusätzlich und nehmen nie ein Recht weg. In der
-        Zeiterfassung sehen Sachbearbeiter/innen nur die eigenen Buchungen, mit dem Zusatzrecht
-        „{{ ZUSATZRECHT_BEZEICHNUNG.zeiterfassung_alle }}“ die aller.
-      </p>
-      <el-table :data="rechte" class="matrix">
-        <el-table-column prop="bereich" label="Bereich" min-width="200" />
-        <el-table-column label="Administrator" width="140" align="center">
-          <template #default="{ row }">{{ row.administrator ? '✓' : '–' }}</template>
-        </el-table-column>
-        <el-table-column label="Sachbearbeiter/in" width="160" align="center">
-          <template #default="{ row }">
-            {{ row.sachbearbeiter ? '✓' : '–' }}<span v-if="row.sachbearbeiterHinweis"> ({{ row.sachbearbeiterHinweis }})</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Freischaltung per Zusatzrecht" min-width="220">
-          <template #default="{ row }">{{ row.perZusatzrecht ?? '–' }}</template>
-        </el-table-column>
-      </el-table>
-    </el-tab-pane>
-  </el-tabs>
+      <el-tab-pane label="Rechtematrix" name="rechte">
+        <p class="erlaeuterung">
+          Wer welchen Bereich nutzen darf. Zusatzrechte gelten nur zusätzlich und nehmen nie ein Recht weg. In der
+          Zeiterfassung sehen Sachbearbeiter/innen nur die eigenen Buchungen, mit dem Zusatzrecht
+          „{{ ZUSATZRECHT_BEZEICHNUNG.zeiterfassung_alle }}“ die aller.
+        </p>
+        <el-table :data="rechte">
+          <el-table-column prop="bereich" label="Bereich" min-width="200" />
+          <el-table-column label="Administrator" width="140" align="center">
+            <template #default="{ row }">{{ row.administrator ? '✓' : '–' }}</template>
+          </el-table-column>
+          <el-table-column label="Sachbearbeiter/in" width="160" align="center">
+            <template #default="{ row }">
+              {{ row.sachbearbeiter ? '✓' : '–' }}<span v-if="row.sachbearbeiterHinweis"> ({{ row.sachbearbeiterHinweis }})</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Freischaltung per Zusatzrecht" min-width="220">
+            <template #default="{ row }">{{ row.perZusatzrecht ?? '–' }}</template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+    </el-tabs>
+  </el-card>
 </template>
 
 <style scoped>
@@ -98,7 +100,6 @@ function zeilenklasse({ row }: { row: Benutzer }) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
 }
 .anklickbar :deep(tbody tr) {
   cursor: pointer;
@@ -112,9 +113,6 @@ function zeilenklasse({ row }: { row: Benutzer }) {
 }
 .erlaeuterung {
   color: var(--el-text-color-secondary);
-  max-width: 760px;
-}
-.matrix {
   max-width: 760px;
 }
 :deep(.deaktiviert) {

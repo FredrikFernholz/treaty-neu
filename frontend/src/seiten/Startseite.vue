@@ -52,10 +52,6 @@ const probeDatum = ref<Date>();
 </template>
 
 <style scoped>
-.karte {
-  max-width: 480px;
-  margin-bottom: 16px;
-}
 .knopf {
   margin-top: 16px;
 }
