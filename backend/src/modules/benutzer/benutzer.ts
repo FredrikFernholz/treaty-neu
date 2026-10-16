@@ -22,7 +22,10 @@ const spalten = {
   version: benutzer.version,
 };
 
-/** Zusatzrechte je Benutzer-id. */
+/**
+ * Zusatzrechte je Benutzer-id, in der Reihenfolge von ZUSATZRECHTE (Rechtematrix). MySQL
+ * sortiert eine ENUM-Spalte nach der Reihenfolge ihrer Definition, nicht alphabetisch.
+ */
 async function zusatzrechteVon(db: DbZugriff, ids: number[]): Promise<Map<number, Zusatzrecht[]>> {
   const ergebnis = new Map<number, Zusatzrecht[]>(ids.map((id) => [id, []]));
   if (ids.length === 0) return ergebnis;

@@ -1,23 +1,80 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { db } from '../../db/zugriff.js';
+import { benutzerAendernSchema, benutzerAnlegenSchema } from '../../shared/schemas/benutzer.js';
 import { fehler } from '../anmeldung/zugriffspruefung.js';
 import { benutzerAuswahl, ladeBenutzer, listeBenutzer } from './benutzer.js';
+import { Verwaltungsfehler, aendereBenutzer, kuerzelVorschlag, legeBenutzerAn } from './verwaltung.js';
 
-// Routen der Benutzerverwaltung (Teilschritt 9a, nur lesend):
-//   GET /api/v1/benutzer           alle Benutzer             Bereich nutzerverwaltung
-//   GET /api/v1/benutzer/auswahl   aktive Benutzer, knapp    alle Angemeldeten
-//   GET /api/v1/benutzer/:id       ein Benutzer mit Sitzungen  Bereich nutzerverwaltung
+// Routen der Benutzerverwaltung (Teilschritte 9a und 9b):
+//   GET  /api/v1/benutzer                    alle Benutzer               nutzerverwaltung
+//   GET  /api/v1/benutzer/auswahl            aktive Benutzer, knapp      alle Angemeldeten
+//   GET  /api/v1/benutzer/kuerzel-vorschlag  Vorschlag zum Namen         nutzerverwaltung
+//   GET  /api/v1/benutzer/:id                ein Benutzer mit Sitzungen  nutzerverwaltung
+//   POST /api/v1/benutzer                    anlegen, mit Einmalpasswort nutzerverwaltung
+//   PUT  /api/v1/benutzer/:id                ändern (mit version)        nutzerverwaltung
+// Was jemand mit dem Zusatzrecht nutzerverwaltung im Einzelnen darf, prüft verwaltung.ts.
 //
 // Die Liste ist nicht seitenweise, weil ADH nur wenige Dutzend Benutzer hat.
 
 const idSchema = z.object({ id: z.coerce.number().int().positive() });
+const vorschlagSchema = z.object({ name: z.string().max(100).default('') });
+
+function eingabefehler(antwort: FastifyReply, fehlerliste: z.ZodError) {
+  return fehler(antwort, 400, { fehler: 'ungueltige_eingabe', meldung: fehlerliste.issues.map((i) => i.message).join(' ') });
+}
+
+/** Wandelt Verwaltungsfehler in die einheitliche Fehlerantwort um, andere Fehler gehen weiter. */
+function verwaltungsfehler(antwort: FastifyReply, f: unknown) {
+  if (f instanceof Verwaltungsfehler) return fehler(antwort, f.status, { fehler: f.code, meldung: f.message });
+  throw f;
+}
 
 export function registriereBenutzerrouten(app: FastifyInstance): void {
   app.get('/api/v1/benutzer', { config: { zugriff: 'nutzerverwaltung' } }, async () => listeBenutzer(db));
 
-  // Statische Route, Fastify bevorzugt sie vor /:id.
+  // Statische Routen, Fastify bevorzugt sie vor /:id.
   app.get('/api/v1/benutzer/auswahl', { config: { zugriff: 'angemeldet' } }, async () => benutzerAuswahl(db));
+
+  app.get('/api/v1/benutzer/kuerzel-vorschlag', { config: { zugriff: 'nutzerverwaltung' } }, async (anfrage, antwort) => {
+    const abfrage = vorschlagSchema.safeParse(anfrage.query);
+    if (!abfrage.success) return eingabefehler(antwort, abfrage.error);
+    return { vorschlag: await kuerzelVorschlag(db, abfrage.data.name) };
+  });
+
+  app.post('/api/v1/benutzer', { config: { zugriff: 'nutzerverwaltung' } }, async (anfrage, antwort) => {
+    const eingabe = benutzerAnlegenSchema.safeParse(anfrage.body);
+    if (!eingabe.success) return eingabefehler(antwort, eingabe.error);
+    try {
+      const ergebnis = await legeBenutzerAn(
+        db,
+        anfrage.angemeldet!,
+        eingabe.data,
+        { ip: anfrage.ip, userAgent: anfrage.headers['user-agent'] ?? null },
+        new Date(),
+      );
+      return antwort.code(201).send(ergebnis);
+    } catch (f) {
+      return verwaltungsfehler(antwort, f);
+    }
+  });
+
+  app.put('/api/v1/benutzer/:id', { config: { zugriff: 'nutzerverwaltung' } }, async (anfrage, antwort) => {
+    const parameter = idSchema.safeParse(anfrage.params);
+    if (!parameter.success) {
+      return fehler(antwort, 400, { fehler: 'ungueltige_eingabe', meldung: 'Ungültige Benutzernummer.' });
+    }
+    if (anfrage.body && typeof anfrage.body === 'object' && 'kuerzel' in anfrage.body) {
+      return fehler(antwort, 400, { fehler: 'ungueltige_eingabe', meldung: 'Das Kürzel ist nach dem Anlegen nicht mehr änderbar.' });
+    }
+    const eingabe = benutzerAendernSchema.safeParse(anfrage.body);
+    if (!eingabe.success) return eingabefehler(antwort, eingabe.error);
+    try {
+      return await aendereBenutzer(db, anfrage.angemeldet!, parameter.data.id, eingabe.data);
+    } catch (f) {
+      return verwaltungsfehler(antwort, f);
+    }
+  });
 
   app.get('/api/v1/benutzer/:id', { config: { zugriff: 'nutzerverwaltung' } }, async (anfrage, antwort) => {
     const parameter = idSchema.safeParse(anfrage.params);

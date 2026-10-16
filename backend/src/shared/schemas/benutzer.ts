@@ -76,3 +76,47 @@ export type Benutzer = z.infer<typeof benutzerSchema>;
 export type Sitzungsinfo = z.infer<typeof sitzungsinfoSchema>;
 export type BenutzerDetail = z.infer<typeof benutzerDetailSchema>;
 export type BenutzerAuswahl = z.infer<typeof benutzerAuswahlSchema>;
+
+// Eingaben der Benutzerverwaltung (Teilschritt 9b).
+
+// Bezeichnung bzw. Abteilung für den Signaturblock. Ein leerer Text bedeutet "keine".
+const bezeichnungSchema = z
+  .string()
+  .trim()
+  .max(100, 'Die Bezeichnung darf höchstens 100 Zeichen lang sein.')
+  .nullable()
+  .default(null)
+  .transform((b) => (b === '' ? null : b));
+
+const zusatzrechteSchema = z
+  .array(z.enum(ZUSATZRECHTE))
+  .default([])
+  .refine((r) => new Set(r).size === r.length, 'Jedes Zusatzrecht darf nur einmal vorkommen.');
+
+/** POST /api/v1/benutzer */
+export const benutzerAnlegenSchema = z.object({
+  kuerzel: kuerzelSchema,
+  name: benutzernameSchema,
+  email: emailSchema,
+  berechtigung: z.enum(BERECHTIGUNGEN),
+  zeichnung: z.enum(ZEICHNUNGEN).default('ohne'),
+  bezeichnung: bezeichnungSchema,
+  zusatzrechte: zusatzrechteSchema,
+});
+
+/** PUT /api/v1/benutzer/:id. Das Kürzel fehlt bewusst, es ist nach dem Anlegen unveränderlich. */
+export const benutzerAendernSchema = z.object({
+  version: z.number().int().positive(),
+  name: benutzernameSchema,
+  email: emailSchema,
+  berechtigung: z.enum(BERECHTIGUNGEN),
+  zeichnung: z.enum(ZEICHNUNGEN),
+  bezeichnung: bezeichnungSchema,
+  zusatzrechte: zusatzrechteSchema,
+});
+
+/** Antwort von POST /api/v1/benutzer. Das Einmalpasswort steht nur in dieser einen Antwort. */
+export const benutzerAngelegtSchema = z.object({ benutzer: benutzerDetailSchema, einmalpasswort: z.string() });
+
+export type BenutzerAnlegen = z.input<typeof benutzerAnlegenSchema>;
+export type BenutzerAendern = z.input<typeof benutzerAendernSchema>;

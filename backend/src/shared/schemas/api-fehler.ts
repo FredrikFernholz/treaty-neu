@@ -13,6 +13,9 @@ export const API_FEHLERCODES = [
   'zu_viele_versuche', // 429: Fehlversuchssperre, siehe Header Retry-After
   'ungueltige_eingabe', // 400: Eingabe passt nicht zum Schema
   'nicht_gefunden', // 404: der angefragte Datensatz existiert nicht
+  'nicht_erlaubt', // 403: Schutzregel, etwa sich selbst herabstufen oder letzter Administrator
+  'konflikt', // 409: inzwischen von jemand anderem geändert (version)
+  'bereits_vergeben', // 409: Kürzel oder E-Mail-Adresse gibt es schon
 ] as const;
 
 export const apiFehlerSchema = z.object({
@@ -21,3 +24,4 @@ export const apiFehlerSchema = z.object({
 });
 
 export type ApiFehler = z.infer<typeof apiFehlerSchema>;
+export type ApiFehlercode = (typeof API_FEHLERCODES)[number];
