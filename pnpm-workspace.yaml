@@ -3,3 +3,17 @@
 packages:
   - backend
   - frontend
+
+# Build-Skripte von Abhängigkeiten (postinstall usw.). pnpm führt sie nur aus, wenn sie
+# hier mit true freigegeben sind. Nicht aufgeführte Pakete mit Build-Skript lassen die
+# Installation mit ERR_PNPM_IGNORED_BUILDS scheitern (strictDepBuilds ist standardmäßig an).
+# false heißt: geprüft und bewusst nicht ausführen.
+# Quelle: https://pnpm.io/settings/build, Abschnitt allowBuilds (seit pnpm v10.26.0).
+allowBuilds:
+  # Kommt über Vite, Vitest und tsx. Das Skript install.js prüft nur die Binärdatei oder
+  # lädt sie nach. pnpm installiert sie ohnehin über das passende Plattformpaket
+  # (@esbuild/linux-x64). Gilt für alle esbuild-Versionen im Lockfile.
+  esbuild: false
+  # Kommt über @tanstack/vue-query. Das Skript schaltet zwischen Vue 2 und Vue 3 um,
+  # das Paket ist ohne Skript bereits auf Vue 3 eingestellt.
+  vue-demi: false
