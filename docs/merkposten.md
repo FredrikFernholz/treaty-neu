@@ -4,6 +4,10 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
+### Kürzel im Altsystem auf das neue Format prüfen (seit 16.10.2026, Ausbaustufe 7)
+
+Kürzel haben in Treaty 2.0 2 bis 10 Zeichen, nur Großbuchstaben und Ziffern, und „ADH“ ist reserviert (Entscheidung 16.10.2026, `backend/src/shared/schemas/benutzer.ts`). Vor der Migration ist zu prüfen, ob alle Kürzel des Altsystems diesem Format entsprechen und keines „ADH“ lautet. Abweichungen dem Nutzer vorlegen, bevor etwas umbenannt wird, denn das Kürzel ist das Anmeldemerkmal und hängt an vielen Datensätzen.
+
 ### Umstellung auf das neue Backend im Betrieb (seit 16.10.2026, Betriebsschritt)
 
 Stand 16.10.2026: Die Dienste `treaty-api` und `treaty-worker` des ersten Versuchs hat der Nutzer gestoppt und deaktiviert. Ihre Unit-Dateien und `/home/ccode/treaty` sind unverändert. Port 3000 ist frei, die Entwicklung läuft aber weiter auf Port 3001. Die Symlinks `/var/www/treaty/backend` und `/var/www/treaty/frontend` zeigen noch auf `/home/ccode/treaty`.

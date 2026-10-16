@@ -10,7 +10,8 @@
     "db:generieren": "drizzle-kit generate",
     "db:migrieren": "tsx --env-file-if-exists=.env src/db/migrieren.ts",
     "db:migrieren:test": "tsx --env-file-if-exists=.env src/db/migrieren.ts --test",
-    "test": "vitest run"
+    "test": "vitest run",
+    "benutzer:erster-administrator": "tsx --env-file-if-exists=.env src/kommandos/erster-administrator.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.3",

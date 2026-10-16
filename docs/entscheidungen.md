@@ -194,3 +194,16 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Das neue Passwort darf nicht dem bisherigen entsprechen, insbesondere nicht dem Einmalpasswort.
 
 **Auswirkung.** Umgesetzt in `backend/src/modules/anmeldung/routen.ts` und `fehlversuchssperre.ts` (`ersteMeldungWaehrendSperre`), mit Tests, darunter 50 Versuche während einer Sperre mit genau einem Eintrag „gesperrt“.
+
+## 16.10.2026, Kürzel, E-Mail, erster Administrator und Testlauf
+
+**Anlass.** Beim Anlegen des ersten Administrators (Teilschritt 8) waren das Format des Kürzels, die Schreibweise der E-Mail-Adresse, der Schutz des Kommandos und der Ablauf der Tests festzulegen.
+
+**Entscheidung.**
+- Ein Kürzel hat 2 bis 10 Zeichen, nur Großbuchstaben und Ziffern. Die Eingabe wird ohne Leerzeichen am Rand und in Großbuchstaben übernommen, aus „ab“ wird „AB“.
+- Das Kürzel „ADH“ ist gesperrt. Es ist der reservierte Sammelwert für die Zuweisung an das Team und darf keiner einzelnen Person gehören.
+- E-Mail-Adressen werden klein geschrieben gespeichert, damit „A@x.de“ und „a@x.de“ nicht als zwei Adressen gelten.
+- Das Kommando `pnpm benutzer:erster-administrator` legt nur dann einen Administrator an, wenn es noch keinen aktiven Administrator gibt. Er bekommt ein zufälliges Einmalpasswort und muss bei der ersten Anmeldung ein eigenes festlegen.
+- Die Testdateien laufen nacheinander (`fileParallelism: false`), weil sich Tests mit der gemeinsamen Testdatenbank sonst gegenseitig stören können. Die Suite braucht dadurch etwa 12 statt 5 Sekunden.
+
+**Auswirkung.** Die Regeln für Kürzel, Name und E-Mail stehen in `backend/src/shared/schemas/benutzer.ts` und gelten auch für die Benutzerverwaltung (Teilschritt 9). Ob alle Kürzel im Altsystem dem Format entsprechen, wird bei der Migration geprüft (Merkposten für Stufe 7).
