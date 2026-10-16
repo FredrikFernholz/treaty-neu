@@ -103,3 +103,13 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 **Entscheidung.** Das Zahlungsziel wird beim Festschreiben der Rechnung berechnet. Es liegt 30 Kalendertage nach dem Rechnungsdatum, also dem Festschreibetag, und wird dann auf den nächsten Donnerstag gelegt. Fällt der 30. Tag auf einen Donnerstag, bleibt er dort. So hat der Mandant die volle Frist ab der versendeten Rechnung.
 
 **Auswirkung.** Die Regel bekommt das Rechnungsdatum als Parameter, nicht den Erstelltag des Entwurfs. Im Entwurf steht noch kein verbindliches Zahlungsziel. CLAUDE.md ist entsprechend angepasst.
+
+## 16.10.2026, Reisekosten ohne Kappung und eine Prüfgebühr-Position je Mandant
+
+Quelle ist eine Antwort des Fachteams vom 16.10.2026.
+
+**Anlass.** Im Prototyp ist die Reisekosten-Kappung ein Pflichtfeld mit Vorgabewert 0, ein Mandant ohne eingetragene Kappung bekäme also keine Reisekosten berechnet. Bei mehreren Prüfgebühr-Positionen addiert der Prototyp ohne gruppierte Fälle alle Preise, mit gruppierten Fällen nimmt er nur den ersten (Abgleich A-16).
+
+**Entscheidung.** Ist keine Reisekosten-Kappung eingetragen, sind die Reisekosten unbegrenzt. Eine eingetragene Kappung von 0,00€ bleibt eine echte Grenze von 0€. Reisekosten werden in der Praxis kaum abgerechnet. Je Mandant darf höchstens eine Prüfgebühr-Position aktiv sein.
+
+**Auswirkung.** `berechneRechnung` in `backend/src/shared/regeln/rechnung.ts` nimmt die Kappung optional (null bedeutet keine Kappung, die Reisekosten werden voll übernommen und gelten als nicht gedeckelt) und wirft einen Fehler, wenn mehr als eine aktive Prüfgebühr-Position übergeben wird. Für Ausbaustufe 2 ist ein Merkposten angelegt, damit die Stammdaten beides schon bei der Eingabe sicherstellen.

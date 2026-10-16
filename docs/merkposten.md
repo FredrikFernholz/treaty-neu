@@ -4,6 +4,10 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
+### Prüfgebühr und Reisekosten-Kappung in den Stammdaten (seit 16.10.2026, Schritt 2)
+
+Je Mandant darf höchstens eine Prüfgebühr-Position aktiv sein (Entscheidung 16.10.2026). In Ausbaustufe 2 prüft der Dienst beim Aktivieren einer Prüfgebühr-Position für einen Mandanten, dass keine andere aktiv ist, gegebenenfalls zusätzlich über eine Datenbankregel. Die Reisekosten-Kappung wird im Mandanten als optionales Feld geführt (NULL bedeutet keine Kappung), nicht wie im Prototyp als Pflichtfeld mit Vorgabewert 0. Die Rechnungsberechnung wirft bei mehreren Prüfgebühr-Positionen einen Fehler, die Stammdaten sollen das aber schon vorher verhindern.
+
 ### WV-Datum von Hand nur bei Betriebskosten auf Montag bis Freitag (seit 16.10.2026, Schritt 2)
 
 Ein von Hand eingetragenes WV-Datum darf bei Betriebskosten nur auf Montag bis Freitag fallen, bei Mieten auch auf ein Wochenende (Entscheidung 16.10.2026). In Ausbaustufe 3 prüft das Backend diese Regel beim Speichern, und die Datumsauswahl im Frontend sperrt bei Betriebskosten Samstag und Sonntag. Die Prüfung allein im Frontend genügt nicht.

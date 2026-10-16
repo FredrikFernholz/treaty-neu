@@ -110,3 +110,12 @@
 - Betrifft: Schritt 2 (Neuanlage eines Falls), Stufe 3 und 4
 - Status: entschieden
 - Entscheidung: nein, in Mieten dürfen Fälligkeiten auf Wochenenden und Feiertage fallen, nur Betriebskosten ist auf Montag bis Freitag beschränkt, siehe docs/entscheidungen.md vom 16.10.2026
+
+## A-16 Kappung ohne Wert und mehrere Prüfgebühr-Positionen
+- Prototyp (schema.sql, Geschaeftsregeln.php): reisekosten_kappung ist NOT NULL mit Vorgabewert 0, und abgerechnet wird min(Ist, Kappung). Ein Mandant ohne eingetragene Kappung bekommt damit keine Reisekosten berechnet. PRD und Felddoku sprechen nur von der „hinterlegten Kappungsgrenze“
+- Prototyp: Bei gruppierten Fällen gilt als Prüfgebührsatz der Preis der ersten Prüfgebühr-Position des Mandanten, ohne gruppierte Fälle die Summe aller Prüfgebühr-Positionen. Bei mehreren Positionen hängt das Ergebnis damit von der Reihenfolge ab
+- Umgesetzt (rechnung.ts, 16.10.2026): beides wie im Prototyp, mit Tests
+- Empfehlung: Kappung als optionales Feld führen, leer bedeutet keine Begrenzung. Beim Satz klären, ob ein Mandant mehr als eine Prüfgebühr-Position haben darf, sonst im Leistungskatalog auf eine begrenzen
+- Betrifft: Stufe 2 (Mandanten, Leistungskatalog), Stufe 5 (Rechnungen)
+- Status: entschieden
+- Entscheidung: ohne eingetragene Kappung sind die Reisekosten unbegrenzt, eine Kappung von 0,00€ bleibt eine echte Grenze, je Mandant höchstens eine aktive Prüfgebühr-Position, siehe docs/entscheidungen.md vom 16.10.2026
