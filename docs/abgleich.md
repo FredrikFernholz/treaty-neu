@@ -82,5 +82,5 @@
 - Umgesetzt (aufgabe.ts, 16.10.2026): Kalendertage, Frist neutral bis 8 Tage vorher, blinkend von 7 Tagen vorher bis zum Fälligkeitstag, danach rot. WV-Ampel und Frist-Anzeige getrennt wie in PRD und Konzeption, keine gemeinsame Farbe
 - Ebenfalls offen: welche Ampel eine abgeschlossene Aufgabe zeigt (beim Fall immer grün, bei der Aufgabe nicht beschrieben)
 - Betrifft: Schritt 2 (Regeln), Stufe 3 (Aufgaben)
-- Status: offen
-- Entscheidung: –
+- Status: entschieden
+- Entscheidung: Frist vorher neutral wie PRD, WV-Ampel und Frist getrennt, abgeschlossene Aufgabe immer grün und ohne Frist-Anzeige, siehe docs/entscheidungen.md vom 16.10.2026

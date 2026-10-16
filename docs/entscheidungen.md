@@ -69,3 +69,11 @@ Quelle für alle Punkte dieses Abschnitts ist eine Rückfrage bei N. Zibulski am
 **Entscheidung.** Die technischen Rahmenbedingungen vom 01.10.2026 gelten unverändert weiter. Dazu gehören TypeScript auf Node.js, MySQL 8.0, die Auslieferung über Apache, eine eigene Benutzerverwaltung, die Ablage der Dateien im Dateisystem, Outlook nur mit Entwürfen, Rechnungen nach ZUGFeRD EN 16931 mit der CSV-Rechnungsliste und die Übernahme der Bestandsdaten. Dass diese Punkte in der PRD vom 13.10.2026 fehlen, gilt als Versehen. Die Empfehlung, auf dem PHP-Backend aufzusetzen, wird nicht übernommen.
 
 **Auswirkung.** Konzeption und CLAUDE.md bleiben für die Technik maßgeblich. Der PHP-Port unter `docs/referenz/prototyp-backend/` dient weiter nur zum Nachschlagen.
+
+## 16.10.2026, Ampel und Frist-Anzeige einer Aufgabe
+
+**Anlass.** PRD 7 und Konzeption 7 legen nicht eindeutig fest, wie die Frist vor der Blinkgrenze dargestellt wird, ob WV-Datum und Frist eine gemeinsame Farbe ergeben und welche Ampel eine abgeschlossene Aufgabe zeigt. Die Entwicklerdoku des Altsystems (Abschnitt 8.2) zeigt die Frist vorher gelb und fasst beide Daten zu einer Farbe zusammen (Abgleich A-11).
+
+**Entscheidung.** Gezählt werden Kalendertage. Eine Frist ist mehr als 7 Tage vor Fälligkeit neutral, wie in der PRD, ab 7 Tagen vorher bis zum Fälligkeitstag blinkend und danach rot. WV-Ampel und Frist-Anzeige bleiben getrennt, eine gemeinsame Farbe gibt es nicht. Eine zusätzliche Sortierung nach Dringlichkeit ist später möglich. Eine abgeschlossene Aufgabe hat immer eine grüne Ampel und keine Frist-Anzeige.
+
+**Auswirkung.** `ampelAufgabe` und `fristAnzeige` in `backend/src/shared/regeln/aufgabe.ts` bekommen neben dem Datum das Kennzeichen `abgeschlossen` und sind dafür mit Tests abgedeckt.

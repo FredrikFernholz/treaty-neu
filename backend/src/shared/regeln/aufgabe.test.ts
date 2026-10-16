@@ -18,7 +18,14 @@ describe('ampelAufgabe', () => {
     ['2026-10-16', '2026-09-16', 'rot'], // -30
     ['2026-10-28', '2026-11-03', 'gruen'], // 6 über das Monatsende
   ])('heute %s, WV-Datum %s → %s', (heute, wvDatum, erwartet) => {
-    expect(ampelAufgabe(wvDatum, heute)).toBe(erwartet);
+    expect(ampelAufgabe({ wvDatum, abgeschlossen: false }, heute)).toBe(erwartet);
+  });
+
+  test.each([
+    ['2026-10-16', '2026-10-16'], // wäre gelb
+    ['2026-10-16', '2026-09-16'], // wäre rot
+  ])('abgeschlossen ist immer grün (heute %s, WV-Datum %s)', (heute, wvDatum) => {
+    expect(ampelAufgabe({ wvDatum, abgeschlossen: true }, heute)).toBe('gruen');
   });
 });
 
@@ -35,10 +42,17 @@ describe('fristAnzeige', () => {
     ['2026-12-31', '2027-01-08', 'neutral'], // 8 über den Jahreswechsel
     ['2026-12-31', '2027-01-07', 'blinkend'], // 7 über den Jahreswechsel
   ])('heute %s, Frist-Datum %s → %s', (heute, fristDatum, erwartet) => {
-    expect(fristAnzeige(fristDatum, heute)).toBe(erwartet);
+    expect(fristAnzeige({ fristDatum, abgeschlossen: false }, heute)).toBe(erwartet);
   });
 
   test('ohne Frist-Datum gibt es keine Anzeige', () => {
-    expect(fristAnzeige(null, '2026-10-16')).toBeNull();
+    expect(fristAnzeige({ fristDatum: null, abgeschlossen: false }, '2026-10-16')).toBeNull();
+  });
+
+  test.each([
+    ['2026-10-16', '2026-10-23'], // wäre blinkend
+    ['2026-10-16', '2026-09-16'], // wäre rot
+  ])('abgeschlossen zeigt keine Frist (heute %s, Frist-Datum %s)', (heute, fristDatum) => {
+    expect(fristAnzeige({ fristDatum, abgeschlossen: true }, heute)).toBeNull();
   });
 });
