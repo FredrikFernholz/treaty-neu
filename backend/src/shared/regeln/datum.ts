@@ -8,8 +8,9 @@
 //
 // "Heute" ermittelt nur heuteInBerlin() in heute.ts. Alle Regeln bekommen es als Parameter.
 //
-// Feiertage werden nicht eingebaut (Entscheidung offen, Konzeption 16 Nr. 1). Die
-// Arbeitstag-Funktionen nehmen optional eine Menge von Feiertagen entgegen.
+// Feiertage spielen keine Rolle, Arbeitstage sind Montag bis Freitag (Entscheidung
+// 15.10.2026 zu Konzeption 16 Nr. 1). Die Arbeitstag-Funktionen nehmen weiterhin
+// optional eine Menge von Feiertagen entgegen, eine Feiertagsliste wird nicht eingebaut.
 
 /** Ein Kalendertag als Text "YYYY-MM-DD", z. B. "2026-10-15". */
 export type Kalenderdatum = string;
@@ -54,6 +55,26 @@ function zerlege(datum: Kalenderdatum): Teile {
 function zusammensetzen({ jahr, monat, tag }: Teile): Kalenderdatum {
   const zweistellig = (zahl: number) => String(zahl).padStart(2, '0');
   return `${String(jahr).padStart(4, '0')}-${zweistellig(monat)}-${zweistellig(tag)}`;
+}
+
+/** Jahr, Monat und Tag eines Kalenderdatums als Zahlen. Wirft bei ungültigem Datum. */
+export function datumsteile(datum: Kalenderdatum): { jahr: number; monat: number; tag: number } {
+  return zerlege(datum);
+}
+
+/**
+ * Datum aus Jahr, Monat und gewünschtem Tag. Gibt es den Tag in diesem Monat nicht, wird
+ * er auf den letzten Tag des Monats begrenzt, z. B. 31. April → 30.04. und 29. Februar
+ * ohne Schaltjahr → 28.02. (Serien, Konzeption 7).
+ */
+export function datumImMonat(jahr: number, monat: number, tag: number): Kalenderdatum {
+  if (!Number.isInteger(jahr) || jahr < 1 || !Number.isInteger(monat) || monat < 1 || monat > 12) {
+    throw new Error(`Ungültiger Monat ${monat} im Jahr ${jahr}`);
+  }
+  if (!Number.isInteger(tag) || tag < 1 || tag > 31) {
+    throw new Error(`Tag muss eine ganze Zahl von 1 bis 31 sein, erhalten: ${tag}`);
+  }
+  return zusammensetzen({ jahr, monat, tag: Math.min(tag, tageImMonat(jahr, monat)) });
 }
 
 /** true, wenn der Text ein gültiges Kalenderdatum "YYYY-MM-DD" ist. */

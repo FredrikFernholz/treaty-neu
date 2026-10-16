@@ -2,6 +2,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 import {
   arbeitstageZwischen,
+  datumImMonat,
+  datumsteile,
   istArbeitstag,
   istKalenderdatum,
   naechsterDonnerstag,
@@ -174,6 +176,43 @@ describe('naechsterDonnerstag', () => {
     ['2027-02-26', '2027-03-04'], // Fr, kein 29.02.
   ])('%s → %s', (datum, erwartet) => {
     expect(naechsterDonnerstag(datum)).toBe(erwartet);
+  });
+});
+
+describe('datumsteile', () => {
+  test('zerlegt ein Datum in Zahlen', () => {
+    expect(datumsteile('2028-02-29')).toEqual({ jahr: 2028, monat: 2, tag: 29 });
+  });
+
+  test('wirft bei ungültigem Datum', () => {
+    expect(() => datumsteile('2027-02-29')).toThrow();
+  });
+});
+
+describe('datumImMonat (Tag auf Monatslänge begrenzt)', () => {
+  // [Jahr, Monat, gewünschter Tag, Ergebnis]
+  test.each([
+    [2026, 10, 15, '2026-10-15'],
+    [2026, 10, 31, '2026-10-31'],
+    [2026, 4, 31, '2026-04-30'],
+    [2027, 2, 31, '2027-02-28'],
+    [2027, 2, 29, '2027-02-28'], // kein Schaltjahr
+    [2028, 2, 29, '2028-02-29'], // Schaltjahr
+    [2100, 2, 29, '2100-02-28'], // volles Jahrhundert, kein Schaltjahr
+    [2000, 2, 30, '2000-02-29'], // durch 400 teilbar, Schaltjahr
+  ])('%i, Monat %i, Tag %i → %s', (jahr, monat, tag, erwartet) => {
+    expect(datumImMonat(jahr, monat, tag)).toBe(erwartet);
+  });
+
+  test.each([
+    [2026, 0, 1],
+    [2026, 13, 1],
+    [2026, 1, 0],
+    [2026, 1, 32],
+    [2026, 1, 1.5],
+    [0, 1, 1],
+  ])('wirft bei Jahr %i, Monat %i, Tag %s', (jahr, monat, tag) => {
+    expect(() => datumImMonat(jahr, monat, tag)).toThrow();
   });
 });
 
