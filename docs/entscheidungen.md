@@ -157,3 +157,14 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Versuche während einer laufenden Sperre zählen nicht und verlängern sie nicht (bei der Umsetzung festgelegt, damit sich ein Konto nicht durch Dauerversuche beliebig lange sperren lässt).
 
 **Auswirkung.** `backend/src/modules/anmeldung/fehlversuchssperre.ts` enthält die Regeln `KONTO_IP_REGEL` und `IP_REGEL`. Die Anmelderoute (Teilschritt 7) verwendet je Regel eine eigene Instanz.
+
+## 16.10.2026, Sitzungen bei Passwortwechsel und Einmalpasswort
+
+**Anlass.** Konzeption 9 legt fest, dass das Sperren eines Kontos alle Sitzungen beendet, sagt aber nichts zum Passwortwechsel und zum Einmalpasswort.
+
+**Entscheidung.**
+- Ändert jemand das eigene Passwort, auch beim Pflichtwechsel nach einem Einmalpasswort, werden alle anderen Sitzungen dieses Kontos beendet. Die aktuelle Sitzung bleibt bestehen. Im Sicherheitsprotokoll steht als Grund `passwort_geaendert`.
+- Vergibt ein Administrator ein Einmalpasswort, werden alle Sitzungen des Kontos beendet.
+- Beim Beenden einer Sitzung laufen Löschen und Protokolleintrag in einer gemeinsamen Transaktion. Protokolliert wird nur, wenn das Löschen tatsächlich eine Sitzung entfernt hat, damit gleichzeitige Anfragen keinen doppelten Eintrag erzeugen.
+
+**Auswirkung.** `beendeAlleSitzungen` in `backend/src/modules/anmeldung/sitzungen.ts` hat dafür die Option `ausserSitzungId`. Passwortwechsel und Einmalpasswort selbst entstehen in den Teilschritten 7 und 9.

@@ -17,3 +17,10 @@ export const pool = erstellePool({
 });
 
 export const db = drizzle(pool, { schema, mode: 'default' });
+
+/**
+ * Datenbankzugriff für Dienstfunktionen: entweder db selbst oder eine laufende
+ * Transaktion aus db.transaction(). So kann eine Funktion für sich allein laufen oder
+ * Teil einer größeren Transaktion sein.
+ */
+export type DbZugriff = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
