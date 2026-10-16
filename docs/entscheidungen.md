@@ -125,3 +125,15 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Das Sicherheitsprotokoll wird jetzt umgesetzt, als eigene Tabelle getrennt von der fachlichen Historie. Protokolliert werden erfolgreiche und fehlgeschlagene Anmeldungen, Sperren, Passwortwechsel, die Vergabe eines Einmalpassworts und beendete Sitzungen. Änderungen an Rechten werden nicht protokolliert, wie die PRD es festlegt (Rückfrage bei der Geschäftsführung als Abgleich A-17). Einträge werden nach 90 Tagen gelöscht. Das Aufräumen übernimmt später der Worker.
 
 **Auswirkung.** Ausbaustufe 1 wird in elf Teilschritten umgesetzt, beginnend mit der Rechtematrix in `backend/src/shared/rechte`. Für die lokale Entwicklung genügt localhost, weil Browser Secure-Cookies dort akzeptieren. Geprüft wird über localhost oder `fastify.inject`.
+
+## 16.10.2026, Liste häufiger Passwörter nur mit Einträgen ab 12 Zeichen, Höchstlänge 256
+
+**Anlass.** Die zuerst gewählte Liste, die Top 10.000 aus SecLists, enthält nur 24 Einträge mit mindestens 12 Zeichen. Alle anderen lehnt schon die Mindestlänge ab, die Liste hätte also kaum zusätzlich geschützt. Außerdem war die Höchstlänge von 256 Zeichen für Passwörter noch nicht als Entscheidung festgehalten. Dieser Eintrag ändert die Entscheidung von heute zur Passwortliste, der frühere Eintrag bleibt stehen.
+
+**Entscheidung.**
+- Die Liste aus SecLists besteht aus den 10.000 häufigsten Einträgen mit mindestens 12 Zeichen aus `Passwords/Common-Credentials/xato-net-10-million-passwords-1000000.txt`, selbe Quelle und selber Commit (`f1196104c5594a19d78b486c52c0794b9d947993`). Herkunft, Filterregel und die Prüfsummen von Quelle und Ergebnis stehen im Dateikopf.
+- Das Filterskript `backend/tools/passwortliste-erzeugen.mjs` liegt im Repository, damit die Liste reproduzierbar ist. Die Quelldatei mit 1 Million Einträgen wird nicht eingecheckt.
+- Die eigene Ergänzung wird um deutsche Muster erweitert. Das sind Passwort, Willkommen, Hallo, Geheim, Sommer, Winter, Frühling und Herbst, jeweils mit den Jahreszahlen 2020 bis 2030 und mit oder ohne „!“, dazu Tastaturfolgen der QWERTZ-Tastatur und Zahlenfolgen wie 123456789012. Aufgenommen werden nur Einträge ab 12 Zeichen.
+- Ein Passwort darf höchstens 256 Zeichen lang sein. Die Grenze schützt den Server davor, mit sehr langen Eingaben für argon2 beschäftigt zu werden. Sie liegt weit über den mindestens 64 Zeichen, die OWASP zulassen will, schränkt Passphrasen also nicht ein.
+
+**Auswirkung.** Das Skript lädt die Quelle vom festen Commit, prüft deren SHA-256 und bricht bei einer Abweichung ab. Zweimal ausgeführt ergibt es byteweise dieselben Dateien. Die Tests prüfen, dass der Inhalt jeder Liste zur Prüfsumme im Kopf passt und die Filterregel einhält. Die Höchstlänge steht in `backend/src/shared/schemas/passwort.ts`.

@@ -1,0 +1,540 @@
+# Häufige Passwörter, eigene Ergänzung (Entscheidung 16.10.2026)
+#
+# Ergänzt die Liste aus SecLists um Begriffe, die bei ADH naheliegen, und um deutsche
+# Muster, die in englischen Listen fehlen. Enthalten sind:
+#  - adh, treaty und der Firmenname ADH Deutschland GmbH in verschiedenen Schreibweisen
+#  - Passwort, Willkommen, Hallo, Geheim, Sommer, Winter, Frühling (auch fruehling), Herbst
+#  - diese Begriffe jeweils allein und mit einer Jahreszahl von 2020 bis 2030, ohne und
+#    mit angehängtem Ausrufezeichen
+#  - Tastaturfolgen auf der deutschen QWERTZ-Tastatur und Zahlenfolgen
+# Aufgenommen sind nur Einträge mit mindestens 12 Zeichen, kürzere fängt schon die
+# Mindestlänge ab. Alles klein geschrieben, weil ohne Beachtung der Groß- und
+# Kleinschreibung verglichen wird.
+#
+# Erzeugt mit backend/tools/passwortliste-erzeugen.mjs, Änderungen bitte dort vornehmen.
+# SHA-256 des Inhalts unter dem Kopf: 161249659120b4607727cce2b2fd8e42b5f424926e16162cb7b8f482f248ee93
+#
+# Ende des Kopfs
+adhdeutschland
+adhdeutschland2020
+adhdeutschland2020!
+adhdeutschland2021
+adhdeutschland2021!
+adhdeutschland2022
+adhdeutschland2022!
+adhdeutschland2023
+adhdeutschland2023!
+adhdeutschland2024
+adhdeutschland2024!
+adhdeutschland2025
+adhdeutschland2025!
+adhdeutschland2026
+adhdeutschland2026!
+adhdeutschland2027
+adhdeutschland2027!
+adhdeutschland2028
+adhdeutschland2028!
+adhdeutschland2029
+adhdeutschland2029!
+adhdeutschland2030
+adhdeutschland2030!
+adhgmbh2020!
+adhgmbh2021!
+adhgmbh2022!
+adhgmbh2023!
+adhgmbh2024!
+adhgmbh2025!
+adhgmbh2026!
+adhgmbh2027!
+adhgmbh2028!
+adhgmbh2029!
+adhgmbh2030!
+adhdeutschlandgmbh
+adhdeutschlandgmbh2020
+adhdeutschlandgmbh2020!
+adhdeutschlandgmbh2021
+adhdeutschlandgmbh2021!
+adhdeutschlandgmbh2022
+adhdeutschlandgmbh2022!
+adhdeutschlandgmbh2023
+adhdeutschlandgmbh2023!
+adhdeutschlandgmbh2024
+adhdeutschlandgmbh2024!
+adhdeutschlandgmbh2025
+adhdeutschlandgmbh2025!
+adhdeutschlandgmbh2026
+adhdeutschlandgmbh2026!
+adhdeutschlandgmbh2027
+adhdeutschlandgmbh2027!
+adhdeutschlandgmbh2028
+adhdeutschlandgmbh2028!
+adhdeutschlandgmbh2029
+adhdeutschlandgmbh2029!
+adhdeutschlandgmbh2030
+adhdeutschlandgmbh2030!
+adhtreaty2020
+adhtreaty2020!
+adhtreaty2021
+adhtreaty2021!
+adhtreaty2022
+adhtreaty2022!
+adhtreaty2023
+adhtreaty2023!
+adhtreaty2024
+adhtreaty2024!
+adhtreaty2025
+adhtreaty2025!
+adhtreaty2026
+adhtreaty2026!
+adhtreaty2027
+adhtreaty2027!
+adhtreaty2028
+adhtreaty2028!
+adhtreaty2029
+adhtreaty2029!
+adhtreaty2030
+adhtreaty2030!
+treatyadh2020
+treatyadh2020!
+treatyadh2021
+treatyadh2021!
+treatyadh2022
+treatyadh2022!
+treatyadh2023
+treatyadh2023!
+treatyadh2024
+treatyadh2024!
+treatyadh2025
+treatyadh2025!
+treatyadh2026
+treatyadh2026!
+treatyadh2027
+treatyadh2027!
+treatyadh2028
+treatyadh2028!
+treatyadh2029
+treatyadh2029!
+treatyadh2030
+treatyadh2030!
+adh deutschland
+adh deutschland2020
+adh deutschland2020!
+adh deutschland2021
+adh deutschland2021!
+adh deutschland2022
+adh deutschland2022!
+adh deutschland2023
+adh deutschland2023!
+adh deutschland2024
+adh deutschland2024!
+adh deutschland2025
+adh deutschland2025!
+adh deutschland2026
+adh deutschland2026!
+adh deutschland2027
+adh deutschland2027!
+adh deutschland2028
+adh deutschland2028!
+adh deutschland2029
+adh deutschland2029!
+adh deutschland2030
+adh deutschland2030!
+adh-deutschland
+adh-deutschland2020
+adh-deutschland2020!
+adh-deutschland2021
+adh-deutschland2021!
+adh-deutschland2022
+adh-deutschland2022!
+adh-deutschland2023
+adh-deutschland2023!
+adh-deutschland2024
+adh-deutschland2024!
+adh-deutschland2025
+adh-deutschland2025!
+adh-deutschland2026
+adh-deutschland2026!
+adh-deutschland2027
+adh-deutschland2027!
+adh-deutschland2028
+adh-deutschland2028!
+adh-deutschland2029
+adh-deutschland2029!
+adh-deutschland2030
+adh-deutschland2030!
+adh.deutschland
+adh.deutschland2020
+adh.deutschland2020!
+adh.deutschland2021
+adh.deutschland2021!
+adh.deutschland2022
+adh.deutschland2022!
+adh.deutschland2023
+adh.deutschland2023!
+adh.deutschland2024
+adh.deutschland2024!
+adh.deutschland2025
+adh.deutschland2025!
+adh.deutschland2026
+adh.deutschland2026!
+adh.deutschland2027
+adh.deutschland2027!
+adh.deutschland2028
+adh.deutschland2028!
+adh.deutschland2029
+adh.deutschland2029!
+adh.deutschland2030
+adh.deutschland2030!
+adh deutschland gmbh
+adh deutschland gmbh2020
+adh deutschland gmbh2020!
+adh deutschland gmbh2021
+adh deutschland gmbh2021!
+adh deutschland gmbh2022
+adh deutschland gmbh2022!
+adh deutschland gmbh2023
+adh deutschland gmbh2023!
+adh deutschland gmbh2024
+adh deutschland gmbh2024!
+adh deutschland gmbh2025
+adh deutschland gmbh2025!
+adh deutschland gmbh2026
+adh deutschland gmbh2026!
+adh deutschland gmbh2027
+adh deutschland gmbh2027!
+adh deutschland gmbh2028
+adh deutschland gmbh2028!
+adh deutschland gmbh2029
+adh deutschland gmbh2029!
+adh deutschland gmbh2030
+adh deutschland gmbh2030!
+adh-deutschland-gmbh
+adh-deutschland-gmbh2020
+adh-deutschland-gmbh2020!
+adh-deutschland-gmbh2021
+adh-deutschland-gmbh2021!
+adh-deutschland-gmbh2022
+adh-deutschland-gmbh2022!
+adh-deutschland-gmbh2023
+adh-deutschland-gmbh2023!
+adh-deutschland-gmbh2024
+adh-deutschland-gmbh2024!
+adh-deutschland-gmbh2025
+adh-deutschland-gmbh2025!
+adh-deutschland-gmbh2026
+adh-deutschland-gmbh2026!
+adh-deutschland-gmbh2027
+adh-deutschland-gmbh2027!
+adh-deutschland-gmbh2028
+adh-deutschland-gmbh2028!
+adh-deutschland-gmbh2029
+adh-deutschland-gmbh2029!
+adh-deutschland-gmbh2030
+adh-deutschland-gmbh2030!
+adh gmbh2020
+adh gmbh2020!
+adh gmbh2021
+adh gmbh2021!
+adh gmbh2022
+adh gmbh2022!
+adh gmbh2023
+adh gmbh2023!
+adh gmbh2024
+adh gmbh2024!
+adh gmbh2025
+adh gmbh2025!
+adh gmbh2026
+adh gmbh2026!
+adh gmbh2027
+adh gmbh2027!
+adh gmbh2028
+adh gmbh2028!
+adh gmbh2029
+adh gmbh2029!
+adh gmbh2030
+adh gmbh2030!
+adh-gmbh2020
+adh-gmbh2020!
+adh-gmbh2021
+adh-gmbh2021!
+adh-gmbh2022
+adh-gmbh2022!
+adh-gmbh2023
+adh-gmbh2023!
+adh-gmbh2024
+adh-gmbh2024!
+adh-gmbh2025
+adh-gmbh2025!
+adh-gmbh2026
+adh-gmbh2026!
+adh-gmbh2027
+adh-gmbh2027!
+adh-gmbh2028
+adh-gmbh2028!
+adh-gmbh2029
+adh-gmbh2029!
+adh-gmbh2030
+adh-gmbh2030!
+treaty2.02020
+treaty2.02020!
+treaty2.02021
+treaty2.02021!
+treaty2.02022
+treaty2.02022!
+treaty2.02023
+treaty2.02023!
+treaty2.02024
+treaty2.02024!
+treaty2.02025
+treaty2.02025!
+treaty2.02026
+treaty2.02026!
+treaty2.02027
+treaty2.02027!
+treaty2.02028
+treaty2.02028!
+treaty2.02029
+treaty2.02029!
+treaty2.02030
+treaty2.02030!
+treaty 2.02020
+treaty 2.02020!
+treaty 2.02021
+treaty 2.02021!
+treaty 2.02022
+treaty 2.02022!
+treaty 2.02023
+treaty 2.02023!
+treaty 2.02024
+treaty 2.02024!
+treaty 2.02025
+treaty 2.02025!
+treaty 2.02026
+treaty 2.02026!
+treaty 2.02027
+treaty 2.02027!
+treaty 2.02028
+treaty 2.02028!
+treaty 2.02029
+treaty 2.02029!
+treaty 2.02030
+treaty 2.02030!
+treaty-2.02020
+treaty-2.02020!
+treaty-2.02021
+treaty-2.02021!
+treaty-2.02022
+treaty-2.02022!
+treaty-2.02023
+treaty-2.02023!
+treaty-2.02024
+treaty-2.02024!
+treaty-2.02025
+treaty-2.02025!
+treaty-2.02026
+treaty-2.02026!
+treaty-2.02027
+treaty-2.02027!
+treaty-2.02028
+treaty-2.02028!
+treaty-2.02029
+treaty-2.02029!
+treaty-2.02030
+treaty-2.02030!
+adh treaty2020
+adh treaty2020!
+adh treaty2021
+adh treaty2021!
+adh treaty2022
+adh treaty2022!
+adh treaty2023
+adh treaty2023!
+adh treaty2024
+adh treaty2024!
+adh treaty2025
+adh treaty2025!
+adh treaty2026
+adh treaty2026!
+adh treaty2027
+adh treaty2027!
+adh treaty2028
+adh treaty2028!
+adh treaty2029
+adh treaty2029!
+adh treaty2030
+adh treaty2030!
+adh-treaty2020
+adh-treaty2020!
+adh-treaty2021
+adh-treaty2021!
+adh-treaty2022
+adh-treaty2022!
+adh-treaty2023
+adh-treaty2023!
+adh-treaty2024
+adh-treaty2024!
+adh-treaty2025
+adh-treaty2025!
+adh-treaty2026
+adh-treaty2026!
+adh-treaty2027
+adh-treaty2027!
+adh-treaty2028
+adh-treaty2028!
+adh-treaty2029
+adh-treaty2029!
+adh-treaty2030
+adh-treaty2030!
+treaty adh2020
+treaty adh2020!
+treaty adh2021
+treaty adh2021!
+treaty adh2022
+treaty adh2022!
+treaty adh2023
+treaty adh2023!
+treaty adh2024
+treaty adh2024!
+treaty adh2025
+treaty adh2025!
+treaty adh2026
+treaty adh2026!
+treaty adh2027
+treaty adh2027!
+treaty adh2028
+treaty adh2028!
+treaty adh2029
+treaty adh2029!
+treaty adh2030
+treaty adh2030!
+passwort2020
+passwort2020!
+passwort2021
+passwort2021!
+passwort2022
+passwort2022!
+passwort2023
+passwort2023!
+passwort2024
+passwort2024!
+passwort2025
+passwort2025!
+passwort2026
+passwort2026!
+passwort2027
+passwort2027!
+passwort2028
+passwort2028!
+passwort2029
+passwort2029!
+passwort2030
+passwort2030!
+willkommen2020
+willkommen2020!
+willkommen2021
+willkommen2021!
+willkommen2022
+willkommen2022!
+willkommen2023
+willkommen2023!
+willkommen2024
+willkommen2024!
+willkommen2025
+willkommen2025!
+willkommen2026
+willkommen2026!
+willkommen2027
+willkommen2027!
+willkommen2028
+willkommen2028!
+willkommen2029
+willkommen2029!
+willkommen2030
+willkommen2030!
+frühling2020
+frühling2020!
+frühling2021
+frühling2021!
+frühling2022
+frühling2022!
+frühling2023
+frühling2023!
+frühling2024
+frühling2024!
+frühling2025
+frühling2025!
+frühling2026
+frühling2026!
+frühling2027
+frühling2027!
+frühling2028
+frühling2028!
+frühling2029
+frühling2029!
+frühling2030
+frühling2030!
+fruehling2020
+fruehling2020!
+fruehling2021
+fruehling2021!
+fruehling2022
+fruehling2022!
+fruehling2023
+fruehling2023!
+fruehling2024
+fruehling2024!
+fruehling2025
+fruehling2025!
+fruehling2026
+fruehling2026!
+fruehling2027
+fruehling2027!
+fruehling2028
+fruehling2028!
+fruehling2029
+fruehling2029!
+fruehling2030
+fruehling2030!
+qwertzuiopü+
+qwertzuiop12
+qwertzuiop123
+qwertzuiop1234
+qwertzuiop!!
+qwertzqwertz
+qwertz123456
+123456qwertz
+qwertzasdfgh
+qwertzuiopasdfghjkl
+asdfghjklöä#
+qayxswedcvfr
+1qay2wsx3edc
+yxcvbnmasdfg
+123456789012
+1234567890123
+12345678901234
+123456789012345
+1234567890123456
+12345678901234567
+123456789012345678
+1234567890123456789
+12345678901234567890
+012345678901
+987654321098
+098765432109
+987654321987
+121212121212
+123123123123
+123412341234
+112233445566
+123456123456
+123456654321
+000000000000
+111111111111
+222222222222
+333333333333
+444444444444
+555555555555
+666666666666
+777777777777
+888888888888
+999999999999
