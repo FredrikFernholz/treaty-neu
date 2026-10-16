@@ -4,9 +4,14 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
-### Client-IP hinter Apache nur von 127.0.0.1 übernehmen (seit 16.10.2026, für Teilschritt 7)
+### Umstellung auf das neue Backend im Betrieb (seit 16.10.2026, Betriebsschritt)
 
-Hinter Apache kommen alle Anfragen von 127.0.0.1. Ohne Einstellung sähe die Fehlversuchssperre deshalb für alle Nutzer dieselbe IP, und eine Sperre je IP träfe alle gleichzeitig. Fastify muss die Client-IP aus X-Forwarded-For übernehmen, aber nur, wenn die Anfrage von 127.0.0.1 kommt (`trustProxy: '127.0.0.1'`). Sonst könnte jeder mit einem selbst gesetzten X-Forwarded-For eine beliebige IP vortäuschen. Dazu gehört ein Test: Eine Anfrage mit X-Forwarded-For von 127.0.0.1 übernimmt die angegebene IP, von einer anderen Adresse nicht.
+Stand 16.10.2026: Die Dienste `treaty-api` und `treaty-worker` des ersten Versuchs hat der Nutzer gestoppt und deaktiviert. Ihre Unit-Dateien und `/home/ccode/treaty` sind unverändert. Port 3000 ist frei, die Entwicklung läuft aber weiter auf Port 3001. Die Symlinks `/var/www/treaty/backend` und `/var/www/treaty/frontend` zeigen noch auf `/home/ccode/treaty`.
+
+Im Betriebsschritt:
+- Das neue Backend lauscht auf 127.0.0.1:3000 (`PORT=3000` in der `.env` des Betriebs).
+- Die alten Unit-Dateien werden durch die neuen aus `deploy/systemd` ersetzt, vorher Rückfrage beim Nutzer. Dabei `ProtectHome=read-only` statt `ProtectHome=yes`, solange der Code unter `/home/treaty-neu` liegt (CLAUDE.md).
+- Die Symlinks unter `/var/www/treaty` werden auf `/home/treaty-neu` umgestellt, ebenfalls nach Rückfrage.
 
 ### Datenbankrechte je Tabelle für Historie und Sicherheitsprotokoll (seit 16.10.2026, Betriebsschritt)
 
@@ -41,3 +46,11 @@ Mögliche Lösungen sind das Aufteilen nach Seiten mit `import()` im Router oder
 Das Frontend nutzt Zod bisher nur indirekt über die gemeinsamen Schemas in `backend/src/shared`. Zod ist dort als Abhängigkeit des Backends eingetragen, nicht des Frontends, damit beide Seiten garantiert dieselbe Zod-Version verwenden. Die deutschen Fehlermeldungen (`z.config(z.locales.de())`) sind nur im Backend eingeschaltet (`backend/src/config.ts`).
 
 Zu klären, sobald das Frontend Formulareingaben mit Zod prüft, ist zweierlei. Erstens, wo die deutsche Sprachdatei im Frontend eingeschaltet wird, etwa in `frontend/src/main.ts`. Zweitens, ob Zod dafür als eigene Abhängigkeit des Frontends eingetragen werden soll. Dabei ist zu beachten, dass `z.config` nur für die Zod-Kopie wirkt, über die es aufgerufen wird. Würden Frontend und `shared` verschiedene Kopien laden, griffe die Einstellung für die Schemas in `shared` nicht.
+
+## Erledigt
+
+### Client-IP hinter Apache nur von 127.0.0.1 übernehmen (seit 16.10.2026, erledigt am 16.10.2026 in Commit edf98a6)
+
+Hinter Apache kommen alle Anfragen von 127.0.0.1. Ohne Einstellung sähe die Fehlversuchssperre deshalb für alle Nutzer dieselbe IP, und eine Sperre je IP träfe alle gleichzeitig. Fastify muss die Client-IP aus X-Forwarded-For übernehmen, aber nur, wenn die Anfrage von 127.0.0.1 kommt (`trustProxy: '127.0.0.1'`). Sonst könnte jeder mit einem selbst gesetzten X-Forwarded-For eine beliebige IP vortäuschen. Dazu gehört ein Test: Eine Anfrage mit X-Forwarded-For von 127.0.0.1 übernimmt die angegebene IP, von einer anderen Adresse nicht.
+
+Umgesetzt in `backend/src/app.ts` (`VERTRAUTER_PROXY`), Tests in `backend/src/app.test.ts`.
