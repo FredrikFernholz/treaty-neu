@@ -2,10 +2,11 @@ import {
   arbeitstageZwischen,
   naechsterDonnerstag,
   plusArbeitstage,
+  plusTage,
   type Kalenderdatum,
 } from './datum.js';
 
-// Regeln für Fälle in Betriebskosten und Mieten (Konzeption 7, PRD 4 und 11).
+// Regeln für Fälle in Betriebskosten und Mieten (Konzeption 7, PRD 4 und 12).
 // Werte nach docs/entscheidungen.md vom 15.10.2026, die Vorrang vor PRD, Konzeption,
 // Felddokumentation und Prototyp-Code haben. Abweichend vom Prototyp-Code liegt das
 // WV-Datum bei "4. Erinnerung" 10 statt 15 Arbeitstage nach dem Wechsel.
@@ -79,6 +80,20 @@ export function wvDatumNachStatuswechsel(
   const regel = WV_REGEL[neuerStatus];
   const datum = plusArbeitstage(wechseltag, regel.arbeitstage);
   return regel.aufDonnerstag ? naechsterDonnerstag(datum) : datum;
+}
+
+/** Abstand zwischen Anlagetag und erstem WV-Datum eines neuen Falls, in Kalendertagen. */
+export const WV_KALENDERTAGE_NEUANLAGE = 14;
+
+/**
+ * Anfangswerte eines neu angelegten Falls (neue NKA oder DMR, Konzeption 7 und PRD 12).
+ * Das WV-Datum liegt genau 14 Kalendertage nach dem Anlagetag. Anders als beim
+ * Statuswechsel zählen hier Kalendertage, und es wird weder auf einen Arbeitstag noch
+ * auf einen Donnerstag verschoben, auch wenn das Datum auf ein Wochenende fällt.
+ * Die Check-Aufgabe zum Fall bekommt dasselbe WV-Datum, sie berechnet kein eigenes.
+ */
+export function neuerFall(anlagetag: Kalenderdatum): { status: 'neu'; wvDatum: Kalenderdatum } {
+  return { status: 'neu', wvDatum: plusTage(anlagetag, WV_KALENDERTAGE_NEUANLAGE) };
 }
 
 export type Ampel = 'gruen' | 'gelb' | 'rot';

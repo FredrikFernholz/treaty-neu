@@ -4,6 +4,7 @@ import {
   FALLSTATUS,
   FALLSTATUS_BEZEICHNUNG,
   ampelFall,
+  neuerFall,
   wvDatumNachStatuswechsel,
   type Fallstatus,
 } from './fall.js';
@@ -82,6 +83,23 @@ describe('wvDatumNachStatuswechsel', () => {
 
   test('abgeschlossen hat kein WV-Datum', () => {
     expect(wvDatumNachStatuswechsel('abgeschlossen', '2026-10-15')).toBeNull();
+  });
+});
+
+describe('neuerFall', () => {
+  // [Anlagetag, erwartetes WV-Datum], immer genau 14 Kalendertage später,
+  // also derselbe Wochentag zwei Wochen danach, auch am Wochenende.
+  test.each([
+    ['2026-10-15', '2026-10-29'], // Do → Do
+    ['2026-10-20', '2026-11-03'], // Di, über das Monatsende
+    ['2026-10-17', '2026-10-31'], // Sa → Sa, keine Verschiebung auf einen Arbeitstag
+    ['2026-10-18', '2026-11-01'], // So → So
+    ['2026-12-25', '2027-01-08'], // Fr, über den Jahreswechsel
+    ['2027-02-20', '2027-03-06'], // kein Schaltjahr, Februar mit 28 Tagen
+    ['2028-02-20', '2028-03-05'], // Schaltjahr, Februar mit 29 Tagen
+    ['2028-02-15', '2028-02-29'], // Schaltjahr, Ergebnis ist der 29.02.
+  ])('Anlage am %s → WV-Datum %s', (anlagetag, erwartet) => {
+    expect(neuerFall(anlagetag)).toEqual({ status: 'neu', wvDatum: erwartet });
   });
 });
 
