@@ -182,3 +182,15 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Greift die Fehlversuchssperre, antwortet der Server mit 429 und dem Header `Retry-After`.
 
 **Auswirkung.** Jede Route unter `/api/v1` muss erklären, welchen Zugriff sie verlangt. Eine Route ohne diese Angabe lässt den Start scheitern, statt still offen zu sein. Umgesetzt in Teilschritt 7b (Zugriffsprüfung) und 7c (Anmelderouten).
+
+## 16.10.2026, Einzelheiten der Anmelderouten
+
+**Anlass.** Bei der Umsetzung der Anmelderouten (Teilschritt 7c) waren vier Einzelheiten offen, die weder Konzeption 9 noch die bisherigen Entscheidungen regeln.
+
+**Entscheidung.**
+- Eine erfolgreiche Anmeldung setzt nur den Zähler für Konto und IP zurück, nicht den Zähler je IP. Sonst ließe sich der IP-Zähler mit einem eigenen gültigen Konto immer wieder leeren. Das präzisiert die Entscheidung zur Fehlversuchssperre von heute.
+- Anmeldeversuche während einer Sperre werden mit dem Grund „gesperrt“ protokolliert, aber höchstens ein Eintrag je Sperre und Schlüssel, damit ein automatisierter Angriff das Sicherheitsprotokoll nicht flutet.
+- Ein falsches bisheriges Passwort beim Passwortwechsel zählt als Fehlversuch, sonst ließe sich über diese Route ein Passwort ohne Sperre durchprobieren.
+- Das neue Passwort darf nicht dem bisherigen entsprechen, insbesondere nicht dem Einmalpasswort.
+
+**Auswirkung.** Umgesetzt in `backend/src/modules/anmeldung/routen.ts` und `fehlversuchssperre.ts` (`ersteMeldungWaehrendSperre`), mit Tests, darunter 50 Versuche während einer Sperre mit genau einem Eintrag „gesperrt“.

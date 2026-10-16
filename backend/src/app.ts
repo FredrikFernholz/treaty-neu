@@ -1,6 +1,7 @@
 import cookie from '@fastify/cookie';
 import Fastify, { type FastifyServerOptions } from 'fastify';
 import { pool } from './db/zugriff.js';
+import { neueSperren, registriereAnmelderouten, type Sperren } from './modules/anmeldung/routen.js';
 import { richteZugriffspruefungEin } from './modules/anmeldung/zugriffspruefung.js';
 import type { Health } from './shared/schemas/health.js';
 
@@ -16,7 +17,13 @@ import type { Health } from './shared/schemas/health.js';
 // Apache verbindet sich über IPv4 (127.0.0.1), ::1 wird deshalb nicht vertraut.
 export const VERTRAUTER_PROXY = '127.0.0.1';
 
-export function baueApp(optionen: { logger?: FastifyServerOptions['logger'] } = {}) {
+export function baueApp(
+  optionen: {
+    logger?: FastifyServerOptions['logger'];
+    /** Zähler der Fehlversuchssperre. Tests übergeben eigene, sonst entstehen neue. */
+    sperren?: Sperren;
+  } = {},
+) {
   const app = Fastify({ logger: optionen.logger ?? false, trustProxy: VERTRAUTER_PROXY });
 
   // Cookies lesen und setzen (Sitzungscookie). Fastify hält die Reihenfolge ein: Der
@@ -48,6 +55,8 @@ export function baueApp(optionen: { logger?: FastifyServerOptions['logger'] } = 
       return antwort.code(503).send(ergebnis);
     }
   });
+
+  registriereAnmelderouten(app, optionen.sperren ?? neueSperren());
 
   return app;
 }

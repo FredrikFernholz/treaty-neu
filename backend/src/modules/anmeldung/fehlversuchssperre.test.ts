@@ -65,6 +65,37 @@ describe('Versuche während einer Sperre', () => {
   });
 });
 
+describe('ersteMeldungWaehrendSperre', () => {
+  test('ohne Sperre false', () => {
+    fehlversuche(4);
+    expect(sperre.ersteMeldungWaehrendSperre('DW|127.0.0.1')).toBe(false);
+  });
+
+  test('während einer Sperre nur beim ersten Mal true', () => {
+    fehlversuche(5);
+    const meldungen = Array.from({ length: 50 }, () => sperre.ersteMeldungWaehrendSperre('DW|127.0.0.1'));
+    expect(meldungen.filter(Boolean)).toHaveLength(1);
+    expect(meldungen[0]).toBe(true);
+  });
+
+  test('jede neue Sperre darf wieder einmal gemeldet werden', () => {
+    fehlversuche(5);
+    expect(sperre.ersteMeldungWaehrendSperre('DW|127.0.0.1')).toBe(true);
+    uhr += 30 * S;
+    expect(sperre.ersteMeldungWaehrendSperre('DW|127.0.0.1')).toBe(false); // Sperre vorbei
+    sperre.fehlversuch('DW|127.0.0.1'); // neue Sperre, 1 min
+    expect(sperre.ersteMeldungWaehrendSperre('DW|127.0.0.1')).toBe(true);
+    expect(sperre.ersteMeldungWaehrendSperre('DW|127.0.0.1')).toBe(false);
+  });
+
+  test('getrennt je Schlüssel', () => {
+    fehlversuche(5, 'A');
+    fehlversuche(5, 'B');
+    expect(sperre.ersteMeldungWaehrendSperre('A')).toBe(true);
+    expect(sperre.ersteMeldungWaehrendSperre('B')).toBe(true);
+  });
+});
+
 describe('erfolgreiche Anmeldung', () => {
   test('setzt den Zähler zurück', () => {
     fehlversuche(4);

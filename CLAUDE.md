@@ -34,6 +34,7 @@ Der Nutzer muss jede Zeile verstehen und später selbst warten können. Deshalb:
 - Server, die für einen Prüfschritt im Hintergrund laufen, immer mit `< /dev/null` starten, sonst hält die Shell Vite an und der Port bleibt belegt. Am Ende mit `kill` beenden und prüfen, dass die Ports wieder frei sind (z. B. `ss -ltn | grep -E ':3001 |:5173 '` ohne Ausgabe).
 - Für Tests im Browser stattdessen Befehle für zwei Terminals ohne `&` angeben, Backend zuerst. Beendet wird dann jeweils mit Strg+C.
 - Immer vollständige Pfade verwenden, nie ein vorheriges `cd` voraussetzen.
+- Eigene Hintergrundprozesse nur über die beim Start gemerkte PID beenden (`kill <PID>`, bei Kindprozessen deren PIDs einzeln), nie über `pkill`/`pgrep` mit Suchmuster. Ein Muster trifft leicht auch die eigene Shell oder fremde Prozesse.
 
 ---
 

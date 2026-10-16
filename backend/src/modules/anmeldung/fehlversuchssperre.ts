@@ -8,7 +8,8 @@
 //  - nur je IP, über alle Konten: nach 20 Fehlversuchen wird die IP gesperrt, ebenfalls
 //    ab 30 Sekunden verdoppelt, höchstens 5 Minuten. Das bremst das Durchprobieren
 //    vieler Kürzel von einer Adresse aus.
-// Eine erfolgreiche Anmeldung setzt den jeweiligen Zähler zurück. Ein Zähler wird nach
+// Eine erfolgreiche Anmeldung setzt nur den Zähler für Konto und IP zurück, nicht den
+// reinen IP-Zähler (das entscheidet die Anmelderoute). Ein Zähler wird nach
 // 60 Minuten ohne neuen Fehlversuch vergessen, gerechnet ab dem letzten Fehlversuch
 // bzw. dem Ende der letzten Sperre. Danach beginnt die Zählung wieder bei null.
 //
@@ -59,6 +60,8 @@ type Eintrag = {
   letzterFehlversuch: number;
   /** Zeitpunkt in ms, bis zu dem gesperrt ist, 0 ohne Sperre. */
   gesperrtBis: number;
+  /** true, sobald ein Versuch während der laufenden Sperre protokolliert wurde. */
+  sperreGemeldet: boolean;
 };
 
 export type Sperrstand = { gesperrt: false } | { gesperrt: true; nochMs: number };
@@ -87,7 +90,12 @@ export class Fehlversuchssperre {
   fehlversuch(schluessel: string): number | null {
     this.aufraeumen();
     const zeit = this.jetzt();
-    const eintrag = this.aktuellerEintrag(schluessel) ?? { fehlversuche: 0, letzterFehlversuch: zeit, gesperrtBis: 0 };
+    const eintrag = this.aktuellerEintrag(schluessel) ?? {
+      fehlversuche: 0,
+      letzterFehlversuch: zeit,
+      gesperrtBis: 0,
+      sperreGemeldet: false,
+    };
     if (eintrag.gesperrtBis > zeit) return null;
 
     eintrag.fehlversuche += 1;
@@ -100,7 +108,21 @@ export class Fehlversuchssperre {
     const verdopplungen = eintrag.fehlversuche - fehlversucheBisZurSperre;
     const dauer = Math.min(ersteSperreMs * 2 ** verdopplungen, laengsteSperreMs);
     eintrag.gesperrtBis = zeit + dauer;
+    eintrag.sperreGemeldet = false;
     return dauer;
+  }
+
+  /**
+   * true nur beim ersten Aufruf während einer laufenden Sperre, danach false bis zur
+   * nächsten Sperre. Damit protokolliert die Anmeldung Versuche während einer Sperre
+   * höchstens einmal je Sperre und Schlüssel, und ein automatisierter Angriff kann das
+   * Sicherheitsprotokoll nicht fluten (Entscheidung 16.10.2026). Ohne Sperre false.
+   */
+  ersteMeldungWaehrendSperre(schluessel: string): boolean {
+    const eintrag = this.aktuellerEintrag(schluessel);
+    if (!eintrag || eintrag.gesperrtBis <= this.jetzt() || eintrag.sperreGemeldet) return false;
+    eintrag.sperreGemeldet = true;
+    return true;
   }
 
   /** Erfolgreiche Anmeldung: Zähler und Sperre für den Schlüssel entfallen. */
