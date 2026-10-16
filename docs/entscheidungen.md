@@ -85,3 +85,21 @@ Quelle für alle Punkte dieses Abschnitts ist eine Rückfrage bei N. Zibulski am
 **Entscheidung.** Der nächste Termin wird vom bisherigen WV-Datum der Aufgabe aus berechnet. Liegt er vor heute, wird weitergerechnet, bis er heute oder später liegt. Übersprungene Termine zählen für „Endet nach n Terminen“ als verbraucht. Die angelegte Aufgabe ist Termin 1. Bei „Endet am“ gilt ein Termin genau am Enddatum noch. Beim nächsten Serientermin werden die Unteraufgaben zurückgesetzt, wie es Konzeption 16 Nr. 15 empfiehlt.
 
 **Auswirkung.** Die Berechnung des nächsten Termins und das Ende der Serie liegen in `backend/src/shared/regeln/serie.ts` und sind mit Tests abgedeckt. Das Zurücksetzen der Unteraufgaben ist ein Datenbankvorgang und wird in Ausbaustufe 3 im Aufgaben-Dienst umgesetzt, in derselben Transaktion wie die Fortsetzung. Konzeption 16 Nr. 15 ist damit entschieden.
+
+## 16.10.2026, Fälligkeiten am Wochenende je nach Modul
+
+Quelle ist eine Antwort des Fachteams vom 16.10.2026.
+
+**Anlass.** Offen war, ob berechnete Fälligkeiten auf ein Wochenende fallen dürfen, etwa das WV-Datum eines neuen Falls (Anlagetag plus 14 Kalendertage) oder ein täglicher Serientermin, und ob Mieten dabei wie Betriebskosten behandelt wird (Abgleich A-13 und A-15).
+
+**Entscheidung.** In Betriebskosten liegen Fälligkeiten nur auf Montag bis Freitag, Feiertage spielen keine Rolle. In allen anderen Modulen, ausdrücklich auch in Mieten, dürfen Fälligkeiten auf Wochenenden und Feiertage fallen. Die Tabelle für das WV-Datum nach einem Statuswechsel gilt für Betriebskosten und Mieten unverändert (Arbeitstage, gegebenenfalls Donnerstag), sie liefert ohnehin immer einen Werktag.
+
+**Auswirkung.** Bei der Neuanlage eines Betriebskosten-Falls wird ein WV-Datum, das auf Samstag oder Sonntag fällt, auf den folgenden Montag geschoben, bei Mieten bleibt es unverändert. Die Check-Aufgabe übernimmt wie bisher das Datum ihres Falls. Bei Serien bleibt „täglich“ der Folgetag einschließlich Wochenende. Ein von Hand eingetragenes WV-Datum ist nur bei Betriebskosten auf Montag bis Freitag beschränkt (Merkposten für Ausbaustufe 3).
+
+## 16.10.2026, Zahlungsziel ab dem Festschreiben der Rechnung
+
+**Anlass.** Konzeption 7 und CLAUDE.md legen das Zahlungsziel auf 30 Tage nach dem Erstelltag, die Felddokumentation (Office, Erstellen-Formular) auf 30 Tage in der Zukunft. Ein Entwurf kann aber länger liegen, bevor die Rechnung festgeschrieben und versendet wird (Abgleich A-14).
+
+**Entscheidung.** Das Zahlungsziel wird beim Festschreiben der Rechnung berechnet. Es liegt 30 Kalendertage nach dem Rechnungsdatum, also dem Festschreibetag, und wird dann auf den nächsten Donnerstag gelegt. Fällt der 30. Tag auf einen Donnerstag, bleibt er dort. So hat der Mandant die volle Frist ab der versendeten Rechnung.
+
+**Auswirkung.** Die Regel bekommt das Rechnungsdatum als Parameter, nicht den Erstelltag des Entwurfs. Im Entwurf steht noch kein verbindliches Zahlungsziel. CLAUDE.md ist entsprechend angepasst.

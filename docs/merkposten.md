@@ -4,6 +4,10 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
+### WV-Datum von Hand nur bei Betriebskosten auf Montag bis Freitag (seit 16.10.2026, Schritt 2)
+
+Ein von Hand eingetragenes WV-Datum darf bei Betriebskosten nur auf Montag bis Freitag fallen, bei Mieten auch auf ein Wochenende (Entscheidung 16.10.2026). In Ausbaustufe 3 prüft das Backend diese Regel beim Speichern, und die Datumsauswahl im Frontend sperrt bei Betriebskosten Samstag und Sonntag. Die Prüfung allein im Frontend genügt nicht.
+
 ### Größe des Frontend-Bundles (seit 15.10.2026, Schritt 1.5)
 
 Vite warnt beim Build, dass die JavaScript-Datei größer als 500kB ist (rund 1MB, gzip rund 340kB). Ursache ist, dass Element Plus vollständig eingebunden wird (`app.use(ElementPlus)` in `frontend/src/main.ts`). Für ein internes Werkzeug ist das derzeit unkritisch.

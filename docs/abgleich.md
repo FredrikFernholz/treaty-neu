@@ -91,3 +91,22 @@
 - Betrifft: Schritt 2 (Regeln), Stufe 3 (Aufgaben)
 - Status: entschieden
 - Entscheidung: vom bisherigen WV-Datum aus rechnen, bis der Termin heute oder später liegt, übersprungene Termine zählen als verbraucht, die angelegte Aufgabe ist Termin 1, ein Termin am Enddatum gilt noch, Unteraufgaben werden zurückgesetzt, siehe docs/entscheidungen.md vom 16.10.2026
+
+## A-13 Tägliche Serie am Wochenende
+- Konzeption 7 und Felddoku: bei „täglich“ ist der nächste Termin der Folgetag, ob Wochenenden ausgelassen werden, stand nicht fest
+- Betrifft: Schritt 2 (Serien), Stufe 3 (Aufgaben)
+- Status: entschieden
+- Entscheidung: „täglich“ bleibt der Folgetag einschließlich Wochenende, Aufgaben gehören nicht zu Betriebskosten, siehe docs/entscheidungen.md vom 16.10.2026
+
+## A-14 Bezugstag des Zahlungsziels
+- Konzeption 7 und CLAUDE.md: Zahlungsziel 30 Tage nach dem Erstelltag, auf den nächsten Donnerstag gelegt. Felddoku Office: „liegt automatisch 30 Tage in der Zukunft“ im Erstellen-Formular
+- Ein Entwurf kann länger liegen, bis er festgeschrieben und versendet wird, die Frist des Mandanten würde dann verkürzt
+- Betrifft: Schritt 2 (Regeln), Stufe 5 (Office)
+- Status: entschieden
+- Entscheidung: 30 Kalendertage ab Rechnungsdatum (= Festschreibetag), berechnet beim Festschreiben, dann auf den nächsten Donnerstag, ein Donnerstag bleibt, siehe docs/entscheidungen.md vom 16.10.2026
+
+## A-15 Fälligkeiten in Mieten am Wochenende
+- Offen war, ob Mieten bei Fälligkeiten wie Betriebskosten behandelt wird (nur Montag bis Freitag)
+- Betrifft: Schritt 2 (Neuanlage eines Falls), Stufe 3 und 4
+- Status: entschieden
+- Entscheidung: nein, in Mieten dürfen Fälligkeiten auf Wochenenden und Feiertage fallen, nur Betriebskosten ist auf Montag bis Freitag beschränkt, siehe docs/entscheidungen.md vom 16.10.2026

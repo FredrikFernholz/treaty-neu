@@ -1,5 +1,6 @@
 import {
   arbeitstageZwischen,
+  naechsterArbeitstag,
   naechsterDonnerstag,
   plusArbeitstage,
   plusTage,
@@ -82,18 +83,27 @@ export function wvDatumNachStatuswechsel(
   return regel.aufDonnerstag ? naechsterDonnerstag(datum) : datum;
 }
 
+/** Fachmodul eines Falls. */
+export type Fallmodul = 'betriebskosten' | 'mieten';
+
 /** Abstand zwischen Anlagetag und erstem WV-Datum eines neuen Falls, in Kalendertagen. */
 export const WV_KALENDERTAGE_NEUANLAGE = 14;
 
 /**
  * Anfangswerte eines neu angelegten Falls (neue NKA oder DMR, Konzeption 7 und PRD 12).
- * Das WV-Datum liegt genau 14 Kalendertage nach dem Anlagetag. Anders als beim
- * Statuswechsel zählen hier Kalendertage, und es wird weder auf einen Arbeitstag noch
- * auf einen Donnerstag verschoben, auch wenn das Datum auf ein Wochenende fällt.
+ * Das WV-Datum liegt 14 Kalendertage nach dem Anlagetag und wird nicht auf einen
+ * Donnerstag gelegt. In Betriebskosten liegen Fälligkeiten nur auf Montag bis Freitag,
+ * ein Samstag oder Sonntag wird dort auf den folgenden Montag geschoben. In Mieten
+ * bleibt das Datum auch am Wochenende stehen (Entscheidung 16.10.2026).
  * Die Check-Aufgabe zum Fall bekommt dasselbe WV-Datum, sie berechnet kein eigenes.
  */
-export function neuerFall(anlagetag: Kalenderdatum): { status: 'neu'; wvDatum: Kalenderdatum } {
-  return { status: 'neu', wvDatum: plusTage(anlagetag, WV_KALENDERTAGE_NEUANLAGE) };
+export function neuerFall(
+  modul: Fallmodul,
+  anlagetag: Kalenderdatum,
+): { status: 'neu'; wvDatum: Kalenderdatum } {
+  const nachVierzehnTagen = plusTage(anlagetag, WV_KALENDERTAGE_NEUANLAGE);
+  const wvDatum = modul === 'betriebskosten' ? naechsterArbeitstag(nachVierzehnTagen) : nachVierzehnTagen;
+  return { status: 'neu', wvDatum };
 }
 
 export type Ampel = 'gruen' | 'gelb' | 'rot';

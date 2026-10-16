@@ -170,7 +170,7 @@ Reine Funktionen ohne Datenbankzugriff, vollständig mit Vitest-Tabellentests ab
 - **Ampel Aufgabe:** grün ab 6 Tagen bis Termin, gelb 0–5, rot wenn verstrichen.
 - **Frist-Anzeige:** neutral bis 7 Tage vorher, dann blinkend, nach Ablauf rot. Frist entsteht nie automatisch.
 - **Serien:** täglich / wöchentlich (Wochentag) / monatlich (Tag, begrenzt auf Monatslänge) / jährlich (29.02. → 28.02. in Nicht-Schaltjahren).
-- **Zahlungsziel:** Erstelltag + 30 Tage, auf Donnerstag.
+- **Zahlungsziel:** Rechnungsdatum beim Festschreiben + 30 Kalendertage, auf Donnerstag (ein Donnerstag bleibt, Entscheidung 16.10.2026).
 - **Rechnungsberechnung:** Grundgebühr, Zeithonorar, Erfolgshonorar, Reisekosten mit Kappung; Gesamt = Summe der vier Posten (Konzeption 7, letzter Punkt).
 
 ---

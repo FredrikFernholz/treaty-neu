@@ -6,6 +6,7 @@ import {
   ampelFall,
   neuerFall,
   wvDatumNachStatuswechsel,
+  type Fallmodul,
   type Fallstatus,
 } from './fall.js';
 
@@ -87,19 +88,34 @@ describe('wvDatumNachStatuswechsel', () => {
 });
 
 describe('neuerFall', () => {
-  // [Anlagetag, erwartetes WV-Datum], immer genau 14 Kalendertage später,
-  // also derselbe Wochentag zwei Wochen danach, auch am Wochenende.
-  test.each([
-    ['2026-10-15', '2026-10-29'], // Do → Do
-    ['2026-10-20', '2026-11-03'], // Di, über das Monatsende
-    ['2026-10-17', '2026-10-31'], // Sa → Sa, keine Verschiebung auf einen Arbeitstag
-    ['2026-10-18', '2026-11-01'], // So → So
-    ['2026-12-25', '2027-01-08'], // Fr, über den Jahreswechsel
-    ['2027-02-20', '2027-03-06'], // kein Schaltjahr, Februar mit 28 Tagen
-    ['2028-02-20', '2028-03-05'], // Schaltjahr, Februar mit 29 Tagen
-    ['2028-02-15', '2028-02-29'], // Schaltjahr, Ergebnis ist der 29.02.
-  ])('Anlage am %s → WV-Datum %s', (anlagetag, erwartet) => {
-    expect(neuerFall(anlagetag)).toEqual({ status: 'neu', wvDatum: erwartet });
+  // [Modul, Anlagetag, erwartetes WV-Datum]. Grundlage sind 14 Kalendertage, also
+  // derselbe Wochentag zwei Wochen später. Nur in Betriebskosten wird ein Samstag oder
+  // Sonntag auf den folgenden Montag geschoben (Entscheidung 16.10.2026).
+  test.each<[Fallmodul, string, string]>([
+    // Wochentage: beide Module gleich
+    ['betriebskosten', '2026-10-15', '2026-10-29'], // Do → Do
+    ['mieten', '2026-10-15', '2026-10-29'],
+    ['betriebskosten', '2026-10-20', '2026-11-03'], // Di, über das Monatsende
+    ['mieten', '2026-10-20', '2026-11-03'],
+    ['betriebskosten', '2026-12-25', '2027-01-08'], // Fr, über den Jahreswechsel
+    ['mieten', '2026-12-25', '2027-01-08'],
+    ['betriebskosten', '2028-02-15', '2028-02-29'], // Di, Schaltjahr, Ergebnis ist der 29.02.
+    ['mieten', '2028-02-15', '2028-02-29'],
+
+    // Anlage am Samstag
+    ['betriebskosten', '2026-10-17', '2026-11-02'], // Sa 31.10. → Mo
+    ['mieten', '2026-10-17', '2026-10-31'], // Sa bleibt
+    // Anlage am Sonntag
+    ['betriebskosten', '2026-10-18', '2026-11-02'], // So 01.11. → Mo
+    ['mieten', '2026-10-18', '2026-11-01'], // So bleibt
+
+    // Wochenende in Verbindung mit dem Februar
+    ['betriebskosten', '2027-02-20', '2027-03-08'], // Sa 06.03. → Mo, Februar mit 28 Tagen
+    ['mieten', '2027-02-20', '2027-03-06'],
+    ['betriebskosten', '2028-02-20', '2028-03-06'], // So 05.03. → Mo, Februar mit 29 Tagen
+    ['mieten', '2028-02-20', '2028-03-05'],
+  ])('%s, Anlage am %s → WV-Datum %s', (modul, anlagetag, erwartet) => {
+    expect(neuerFall(modul, anlagetag)).toEqual({ status: 'neu', wvDatum: erwartet });
   });
 });
 

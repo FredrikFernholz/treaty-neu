@@ -190,6 +190,17 @@ export function arbeitstageZwischen(
   return anzahl;
 }
 
+/**
+ * Ist das Datum ein Arbeitstag (Montag bis Freitag), bleibt es. Samstag und Sonntag
+ * werden auf den folgenden Montag gelegt (Betriebskosten, Entscheidung 16.10.2026).
+ */
+export function naechsterArbeitstag(datum: Kalenderdatum): Kalenderdatum {
+  const tag = wochentag(datum);
+  if (tag === 6) return plusTage(datum, 2);
+  if (tag === 7) return plusTage(datum, 1);
+  return datum;
+}
+
 /** Ist das Datum ein Donnerstag, bleibt es. Sonst der folgende Donnerstag (Konzeption 7). */
 export function naechsterDonnerstag(datum: Kalenderdatum): Kalenderdatum {
   return plusTage(datum, (DONNERSTAG - wochentag(datum) + 7) % 7);

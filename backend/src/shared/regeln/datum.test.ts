@@ -6,6 +6,7 @@ import {
   datumsteile,
   istArbeitstag,
   istKalenderdatum,
+  naechsterArbeitstag,
   naechsterDonnerstag,
   plusArbeitstage,
   plusTage,
@@ -160,6 +161,20 @@ describe('arbeitstageZwischen (nach "von" bis einschließlich "bis")', () => {
         expect(arbeitstageZwischen(datum, plusArbeitstage(datum, n, feiertage), feiertage)).toBe(n);
       }
     }
+  });
+});
+
+describe('naechsterArbeitstag (Sa und So → Montag)', () => {
+  test.each([
+    ['2026-10-16', '2026-10-16'], // Fr bleibt
+    ['2026-10-19', '2026-10-19'], // Mo bleibt
+    ['2026-10-17', '2026-10-19'], // Sa
+    ['2026-10-18', '2026-10-19'], // So
+    ['2026-10-31', '2026-11-02'], // Sa, über das Monatsende
+    ['2027-01-02', '2027-01-04'], // Sa, nach dem Jahreswechsel
+    ['2028-02-26', '2028-02-28'], // Sa, vor dem 29.02.
+  ])('%s → %s', (datum, erwartet) => {
+    expect(naechsterArbeitstag(datum)).toBe(erwartet);
   });
 });
 
