@@ -75,3 +75,12 @@
 - Betrifft: Stufe Vertragsmanagement
 - Status: offen
 - Entscheidung: –
+
+## A-11 Ampel und Frist-Anzeige einer Aufgabe
+- PRD 7 und Konzeption 7: WV-Datum grün ab 6 Tagen bis zum Termin, gelb 0 bis 5, rot nach Ablauf. Frist „bis sieben Tage vor Fälligkeit neutral, danach blinkend gelb-rot“, nach Ablauf rot. Ob Kalender- oder Arbeitstage gemeint sind und was genau 7 Tage vorher gilt, steht dort nicht
+- Entwicklerdoku Altsystem 8.2 (vom Fachteam bestätigt): Kalendertage, blinkend „ab 7 Tage vor dem Frist-Datum“, rot ab 1 Tag danach. Mehr als 7 Tage vorher ist die Frist dort gelb statt neutral, und die Aufgabe hat nur eine Farbe, bei der die dringlichere von WV-Datum und Frist den Ausschlag gibt
+- Umgesetzt (aufgabe.ts, 16.10.2026): Kalendertage, Frist neutral bis 8 Tage vorher, blinkend von 7 Tagen vorher bis zum Fälligkeitstag, danach rot. WV-Ampel und Frist-Anzeige getrennt wie in PRD und Konzeption, keine gemeinsame Farbe
+- Ebenfalls offen: welche Ampel eine abgeschlossene Aufgabe zeigt (beim Fall immer grün, bei der Aufgabe nicht beschrieben)
+- Betrifft: Schritt 2 (Regeln), Stufe 3 (Aufgaben)
+- Status: offen
+- Entscheidung: –
