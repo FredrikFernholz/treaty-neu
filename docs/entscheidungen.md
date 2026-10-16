@@ -113,3 +113,15 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 **Entscheidung.** Ist keine Reisekosten-Kappung eingetragen, sind die Reisekosten unbegrenzt. Eine eingetragene Kappung von 0,00€ bleibt eine echte Grenze von 0€. Reisekosten werden in der Praxis kaum abgerechnet. Je Mandant darf höchstens eine Prüfgebühr-Position aktiv sein.
 
 **Auswirkung.** `berechneRechnung` in `backend/src/shared/regeln/rechnung.ts` nimmt die Kappung optional (null bedeutet keine Kappung, die Reisekosten werden voll übernommen und gelten als nicht gedeckelt) und wirft einen Fehler, wenn mehr als eine aktive Prüfgebühr-Position übergeben wird. Für Ausbaustufe 2 ist ein Merkposten angelegt, damit die Stammdaten beides schon bei der Eingabe sicherstellen.
+
+## 16.10.2026, Grundlagen der Ausbaustufe 1 (Hashing, Passwortliste, Rechtematrix, Sicherheitsprotokoll)
+
+**Anlass.** Vor Beginn der Ausbaustufe 1 waren vier Punkte offen. Es ging um das Paket für argon2id (das Paket `argon2` braucht ein Build-Skript), die Liste häufiger Passwörter aus Konzeption 9, den Bereich Vertragsmanagement in der Rechtematrix (Abgleich A-10) und das in Konzeption 8 empfohlene technische Sicherheitsprotokoll.
+
+**Entscheidung.**
+- Passwörter werden mit `@node-rs/argon2` gehasht, das ohne Build-Skript auskommt. Die Lizenz wird bei der Installation geprüft. Die Parameter entsprechen mindestens der OWASP-Empfehlung, also argon2id mit 19MiB Speicher, t=2 und p=1. Sie stehen als Konstante mit Kommentar in der Konfiguration.
+- Die Liste häufiger Passwörter besteht aus den Top 10.000 aus SecLists und einer kurzen eigenen Ergänzung mit Firmenbegriffen (adh, treaty, Firmenname, Jahreszahlen). Die Lizenz von SecLists wird geprüft und in der Datei vermerkt. Die Liste ist im Repository versioniert, verglichen wird ohne Beachtung der Groß- und Kleinschreibung.
+- Der Bereich `vertraege` wird jetzt in der Rechtematrix angelegt. Er steht beiden Berechtigungsstufen offen, ein Zusatzrecht gibt es dafür nicht.
+- Das Sicherheitsprotokoll wird jetzt umgesetzt, als eigene Tabelle getrennt von der fachlichen Historie. Protokolliert werden erfolgreiche und fehlgeschlagene Anmeldungen, Sperren, Passwortwechsel, die Vergabe eines Einmalpassworts und beendete Sitzungen. Änderungen an Rechten werden nicht protokolliert, wie die PRD es festlegt (Rückfrage bei der Geschäftsführung als Abgleich A-17). Einträge werden nach 90 Tagen gelöscht. Das Aufräumen übernimmt später der Worker.
+
+**Auswirkung.** Ausbaustufe 1 wird in elf Teilschritten umgesetzt, beginnend mit der Rechtematrix in `backend/src/shared/rechte`. Für die lokale Entwicklung genügt localhost, weil Browser Secure-Cookies dort akzeptieren. Geprüft wird über localhost oder `fastify.inject`.

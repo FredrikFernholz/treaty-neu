@@ -4,6 +4,14 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
+### Sichtbarkeit der Aufgaben als Funktion in shared/rechte (seit 16.10.2026, Ausbaustufe 1)
+
+Sachbearbeiter/innen sehen überall nur Aufgaben, die ihnen selbst oder „ADH“ (dem Team) zugewiesen sind oder bei denen sie Follower sind, Administratoren alle (Entscheidung 15.10.2026). Diese Regel kommt als eigene Funktion nach `backend/src/shared/rechte`, sobald A-02 (ein oder mehrere Follower je Aufgabe) geklärt ist, spätestens in Ausbaustufe 3. Durchgesetzt wird sie in den Datenbankabfragen des Aufgabenmoduls, nicht nur in der Oberfläche.
+
+### Löschfrist des Sicherheitsprotokolls (seit 16.10.2026, Ausbaustufe 1)
+
+Einträge im Sicherheitsprotokoll werden nach 90 Tagen gelöscht (Entscheidung 16.10.2026). Das Aufräumen übernimmt der Worker, sobald es ihn gibt, als regelmäßiger Auftrag. Bis dahin wächst die Tabelle ungebremst, was für den Testbetrieb unkritisch ist, vor dem Echtbetrieb aber erledigt sein muss.
+
 ### Prüfgebühr und Reisekosten-Kappung in den Stammdaten (seit 16.10.2026, Schritt 2)
 
 Je Mandant darf höchstens eine Prüfgebühr-Position aktiv sein (Entscheidung 16.10.2026). In Ausbaustufe 2 prüft der Dienst beim Aktivieren einer Prüfgebühr-Position für einen Mandanten, dass keine andere aktiv ist, gegebenenfalls zusätzlich über eine Datenbankregel. Die Reisekosten-Kappung wird im Mandanten als optionales Feld geführt (NULL bedeutet keine Kappung), nicht wie im Prototyp als Pflichtfeld mit Vorgabewert 0. Die Rechnungsberechnung wirft bei mehreren Prüfgebühr-Positionen einen Fehler, die Stammdaten sollen das aber schon vorher verhindern.

@@ -119,3 +119,12 @@
 - Betrifft: Stufe 2 (Mandanten, Leistungskatalog), Stufe 5 (Rechnungen)
 - Status: entschieden
 - Entscheidung: ohne eingetragene Kappung sind die Reisekosten unbegrenzt, eine Kappung von 0,00€ bleibt eine echte Grenze, je Mandant höchstens eine aktive Prüfgebühr-Position, siehe docs/entscheidungen.md vom 16.10.2026
+
+## A-17 Protokollierung von Rechteänderungen
+- PRD 3: Die Vergabe von Zusatzrechten wird nicht protokolliert
+- Konzeption 8: Empfehlung eines technischen Sicherheitsprotokolls über Änderungen an Berechtigungen und Anmeldungen, wie es bei Prüfungen der IT-Sicherheit oft verlangt wird
+- Entscheidung 16.10.2026: Das Sicherheitsprotokoll erfasst Anmeldungen, Sperren, Passwortwechsel, Einmalpasswörter und beendete Sitzungen, Rechteänderungen bleiben vorerst außen vor
+- Offen: Rückfrage bei der Geschäftsführung, ob Änderungen an Berechtigungsstufe und Zusatzrechten doch ins Sicherheitsprotokoll aufgenommen werden
+- Betrifft: Stufe 1 (Benutzerverwaltung, Sicherheitsprotokoll)
+- Status: offen
+- Entscheidung: –
