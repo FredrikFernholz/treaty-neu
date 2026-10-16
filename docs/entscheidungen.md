@@ -137,3 +137,11 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Ein Passwort darf höchstens 256 Zeichen lang sein. Die Grenze schützt den Server davor, mit sehr langen Eingaben für argon2 beschäftigt zu werden. Sie liegt weit über den mindestens 64 Zeichen, die OWASP zulassen will, schränkt Passphrasen also nicht ein.
 
 **Auswirkung.** Das Skript lädt die Quelle vom festen Commit, prüft deren SHA-256 und bricht bei einer Abweichung ab. Zweimal ausgeführt ergibt es byteweise dieselben Dateien. Die Tests prüfen, dass der Inhalt jeder Liste zur Prüfsumme im Kopf passt und die Filterregel einhält. Die Höchstlänge steht in `backend/src/shared/schemas/passwort.ts`.
+
+## 16.10.2026, Benutzer werden nie gelöscht, nur deaktiviert
+
+**Anlass.** Die Tabellen der Migration `0001_anmeldung` hängen per Fremdschlüssel am Benutzer. Ein gelöschter Benutzer würde Bezüge in Sitzungen, Zusatzrechten und Protokoll verlieren und später auch in fachlichen Daten wie Fällen, Aufgaben und Zeitbuchungen.
+
+**Entscheidung.** Benutzer werden nie gelöscht, sondern nur deaktiviert (`aktiv = false`). Das Deaktivieren beendet sofort alle Sitzungen des Benutzers. Die API bietet kein Löschen von Benutzern an. Fremdschlüssel aus Fachtabellen auf `benutzer`, die ab Ausbaustufe 3 entstehen, werden mit `ON DELETE RESTRICT` angelegt, damit ein versehentliches Löschen in der Datenbank scheitert.
+
+**Auswirkung.** Die Löschregeln in Migration `0001_anmeldung` (CASCADE bei Zusatzrechten und Sitzungen, SET NULL beim Sicherheitsprotokoll) bleiben bestehen. Sie greifen nur, wenn ein Benutzer außerhalb von Treaty gelöscht wird, etwa beim Aufräumen von Testdaten, und hinterlassen dann nichts Verwaistes. Das Beenden der Sitzungen beim Deaktivieren gehört zur Benutzerverwaltung in Teilschritt 9.

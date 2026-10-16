@@ -4,6 +4,12 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
+### Datenbankrechte je Tabelle für Historie und Sicherheitsprotokoll (seit 16.10.2026, Betriebsschritt)
+
+Historie (ab Ausbaustufe 3) und Sicherheitsprotokoll sind reine Anfügetabellen. Bisher ist das nur eine Vereinbarung im Code, denn der App-Benutzer hat SELECT, INSERT, UPDATE und DELETE auf alle Tabellen der Datenbank (`deploy/mysql/setup.sh`). Im Betriebsschritt werden die Rechte von `treaty_neu_app` je Tabelle vergeben, auf `historie` und `sicherheitsprotokoll` nur SELECT und INSERT. Für das Aufräumen des Sicherheitsprotokolls nach 90 Tagen bekommt der Worker einen eigenen Benutzer `treaty_neu_wartung` mit DELETE nur auf `sicherheitsprotokoll`, den nur der Worker verwendet.
+
+Die Namen folgen CLAUDE.md. `treaty_app` gehört dem noch laufenden Altsystem und wird nicht angefasst. Weil Rechte je Tabelle für jede neue Tabelle nachgezogen werden müssen, sollte `setup.sh` die Rechte aus einer Liste der Tabellen erzeugen und ein Test prüfen, dass jede Tabelle des Schemas darin vorkommt.
+
 ### Sichtbarkeit der Aufgaben als Funktion in shared/rechte (seit 16.10.2026, Ausbaustufe 1)
 
 Sachbearbeiter/innen sehen überall nur Aufgaben, die ihnen selbst oder „ADH“ (dem Team) zugewiesen sind oder bei denen sie Follower sind, Administratoren alle (Entscheidung 15.10.2026). Diese Regel kommt als eigene Funktion nach `backend/src/shared/rechte`, sobald A-02 (ein oder mehrere Follower je Aufgabe) geklärt ist, spätestens in Ausbaustufe 3. Durchgesetzt wird sie in den Datenbankabfragen des Aufgabenmoduls, nicht nur in der Oberfläche.
