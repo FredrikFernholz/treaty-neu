@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { sichtbareMenuepunkte } from './menue';
 import { useSitzung } from './stores/sitzung';
 
 // Rahmen der Anwendung. Die jeweilige Seite erscheint an der Stelle von RouterView.
@@ -8,8 +10,12 @@ import { useSitzung } from './stores/sitzung';
 
 const sitzung = useSitzung();
 const router = useRouter();
+const route = useRoute();
 
-async function menue(befehl: string) {
+// Menüpunkte nach der Rechtematrix. Während des Pflichtwechsels gibt es kein Menü.
+const menue = computed(() => (sitzung.ich?.passwortWechselNoetig ? [] : sichtbareMenuepunkte(sitzung.ich)));
+
+async function personenmenue(befehl: string) {
   if (befehl === 'passwort') {
     await router.push({ name: 'passwort-aendern' });
   } else if (befehl === 'abmelden') {
@@ -27,8 +33,15 @@ async function menue(befehl: string) {
 <template>
   <el-container class="rahmen">
     <el-header class="kopf">
-      <span>Treaty</span>
-      <el-dropdown v-if="sitzung.ich" trigger="click" @command="menue">
+      <div class="links">
+        <span class="name">Treaty</span>
+        <el-menu v-if="menue.length > 0" mode="horizontal" :ellipsis="false" :default-active="String(route.name)" class="menue">
+          <el-menu-item v-for="punkt in menue" :key="punkt.route" :index="punkt.route" @click="router.push({ name: punkt.route })">
+            {{ punkt.titel }}
+          </el-menu-item>
+        </el-menu>
+      </div>
+      <el-dropdown v-if="sitzung.ich" trigger="click" @command="personenmenue">
         <el-button text>{{ sitzung.ich.name }} ({{ sitzung.ich.kuerzel }})</el-button>
         <template #dropdown>
           <el-dropdown-menu>
@@ -55,6 +68,15 @@ body {
 <style scoped>
 .rahmen {
   min-height: 100vh;
+}
+.links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.menue {
+  border-bottom: none;
+  font-weight: 400;
 }
 .kopf {
   display: flex;

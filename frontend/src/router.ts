@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { entscheideNavigation } from './navigation';
 import AnmeldeSeite from './seiten/AnmeldeSeite.vue';
+import BenutzerSeite from './seiten/BenutzerSeite.vue';
 import KeinZugriffSeite from './seiten/KeinZugriffSeite.vue';
 import PasswortAendernSeite from './seiten/PasswortAendernSeite.vue';
 import Startseite from './seiten/Startseite.vue';
@@ -24,6 +25,7 @@ export const router = createRouter({
       meta: { erlaubtBeiPasswortwechsel: true },
     },
     { path: '/kein-zugriff', name: 'kein-zugriff', component: KeinZugriffSeite },
+    { path: '/benutzer', name: 'benutzer', component: BenutzerSeite, meta: { bereich: 'nutzerverwaltung' } },
     // Unbekannte Adressen führen zur Startseite.
     { path: '/:pfad(.*)*', redirect: { name: 'start' } },
   ],
