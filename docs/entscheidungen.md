@@ -77,3 +77,11 @@ Quelle für alle Punkte dieses Abschnitts ist eine Rückfrage bei N. Zibulski am
 **Entscheidung.** Gezählt werden Kalendertage. Eine Frist ist mehr als 7 Tage vor Fälligkeit neutral, wie in der PRD, ab 7 Tagen vorher bis zum Fälligkeitstag blinkend und danach rot. WV-Ampel und Frist-Anzeige bleiben getrennt, eine gemeinsame Farbe gibt es nicht. Eine zusätzliche Sortierung nach Dringlichkeit ist später möglich. Eine abgeschlossene Aufgabe hat immer eine grüne Ampel und keine Frist-Anzeige.
 
 **Auswirkung.** `ampelAufgabe` und `fristAnzeige` in `backend/src/shared/regeln/aufgabe.ts` bekommen neben dem Datum das Kennzeichen `abgeschlossen` und sind dafür mit Tests abgedeckt.
+
+## 16.10.2026, Seriendauer und Fortsetzung einer Serienaufgabe
+
+**Anlass.** Konzeption 7 und Felddokumentation beschreiben, wie der nächste Serientermin berechnet wird, aber nicht, von welchem Tag aus, was mit Terminen in der Vergangenheit geschieht und wie die Seriendauer gezählt wird. Konzeption 16 Nr. 15 lässt offen, ob Unteraufgaben zurückgesetzt werden (Abgleich A-12).
+
+**Entscheidung.** Der nächste Termin wird vom bisherigen WV-Datum der Aufgabe aus berechnet. Liegt er vor heute, wird weitergerechnet, bis er heute oder später liegt. Übersprungene Termine zählen für „Endet nach n Terminen“ als verbraucht. Die angelegte Aufgabe ist Termin 1. Bei „Endet am“ gilt ein Termin genau am Enddatum noch. Beim nächsten Serientermin werden die Unteraufgaben zurückgesetzt, wie es Konzeption 16 Nr. 15 empfiehlt.
+
+**Auswirkung.** Die Berechnung des nächsten Termins und das Ende der Serie liegen in `backend/src/shared/regeln/serie.ts` und sind mit Tests abgedeckt. Das Zurücksetzen der Unteraufgaben ist ein Datenbankvorgang und wird in Ausbaustufe 3 im Aufgaben-Dienst umgesetzt, in derselben Transaktion wie die Fortsetzung. Konzeption 16 Nr. 15 ist damit entschieden.

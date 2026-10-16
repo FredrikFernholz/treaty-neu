@@ -84,3 +84,10 @@
 - Betrifft: Schritt 2 (Regeln), Stufe 3 (Aufgaben)
 - Status: entschieden
 - Entscheidung: Frist vorher neutral wie PRD, WV-Ampel und Frist getrennt, abgeschlossene Aufgabe immer grün und ohne Frist-Anzeige, siehe docs/entscheidungen.md vom 16.10.2026
+
+## A-12 Seriendauer und Fortsetzung einer Serie
+- Konzeption 7 und Felddoku Aufgaben: Beim Abschließen wird der nächste Serientermin berechnet, ist die Seriendauer (kein Enddatum, Endet am, Endet nach n Terminen) nicht erreicht, wird die Aufgabe mit neuem WV-Datum auf NEU gesetzt
+- Offen war, von welchem Tag aus gerechnet wird, was mit Terminen in der Vergangenheit geschieht, ob die angelegte Aufgabe als Termin zählt, ob ein Termin am Enddatum noch gilt und ob Unteraufgaben zurückgesetzt werden (Konzeption 16 Nr. 15)
+- Betrifft: Schritt 2 (Regeln), Stufe 3 (Aufgaben)
+- Status: entschieden
+- Entscheidung: vom bisherigen WV-Datum aus rechnen, bis der Termin heute oder später liegt, übersprungene Termine zählen als verbraucht, die angelegte Aufgabe ist Termin 1, ein Termin am Enddatum gilt noch, Unteraufgaben werden zurückgesetzt, siehe docs/entscheidungen.md vom 16.10.2026

@@ -3,15 +3,16 @@ import {
   datumsteile,
   plusTage,
   tageImMonat,
+  tageZwischen,
   wochentag,
   type Kalenderdatum,
   type Wochentag,
 } from './datum.js';
 
 // Serienaufgaben (Konzeption 7, Felddokumentation Blatt Aufgaben, Abschnitt Serie).
-// Beim Abschließen einer Serienaufgabe wird der nächste Serientermin berechnet.
-// Hier steht nur diese Datumsberechnung. Ob die Serie danach weiterläuft (Seriendauer)
-// und von welchem Tag aus gerechnet wird, regelt der Aufrufer.
+// Beim Abschließen einer Serienaufgabe wird der nächste Serientermin berechnet
+// (naechsterSerientermin) und anhand der Seriendauer entschieden, ob die Serie
+// weiterläuft (serieFortsetzen, Entscheidung 16.10.2026, Abgleich A-12).
 //
 // Der Wiederholungstag ist Teil der Serie und wird nicht aus dem letzten Termin
 // abgelesen. Eine monatliche Serie zum 31. bleibt deshalb beim 31., auch wenn ein
@@ -78,4 +79,55 @@ export function naechsterSerientermin(serie: Serienmuster, letzterTermin: Kalend
     case 'jaehrlich':
       return datumImMonat(jahr + 1, serie.monat, serie.tag);
   }
+}
+
+/** Seriendauer: ohne Ende, bis zu einem Enddatum oder für eine feste Anzahl Termine. */
+export type Seriendauer =
+  | { dauer: 'ohne_ende' }
+  | { dauer: 'bis_datum'; endDatum: Kalenderdatum }
+  | { dauer: 'anzahl'; anzahlTermine: number };
+
+/** Ergebnis beim Abschließen eines Serientermins. */
+export type Serienfortsetzung =
+  | { weiter: true; wvDatum: Kalenderdatum; anzahlBisher: number }
+  | { weiter: false };
+
+/**
+ * Was beim Abschließen einer Serienaufgabe geschieht (Entscheidung 16.10.2026).
+ *
+ * Gerechnet wird vom bisherigen WV-Datum aus, nicht vom Tag des Abschließens, damit die
+ * Serie nicht wandert. Liegt der nächste Termin vor heute, wird weitergerechnet, bis er
+ * heute oder später liegt. Die übersprungenen Termine zählen bei "Endet nach n Terminen"
+ * als verbraucht.
+ *
+ * anzahlBisher ist die Nummer des Termins, der gerade abgeschlossen wird. Die angelegte
+ * Aufgabe ist Termin 1. Bei "Endet am" gilt ein Termin genau am Enddatum noch.
+ *
+ * Bei weiter: true wird die Aufgabe mit dem neuen WV-Datum auf NEU gesetzt und ihre
+ * Unteraufgaben werden zurückgesetzt (das erledigt der Aufgaben-Dienst). Bei
+ * weiter: false wird sie endgültig abgeschlossen.
+ */
+export function serieFortsetzen(
+  serie: Serienmuster,
+  dauer: Seriendauer,
+  aktuell: { wvDatum: Kalenderdatum; anzahlBisher: number },
+  heute: Kalenderdatum,
+): Serienfortsetzung {
+  if (!Number.isInteger(aktuell.anzahlBisher) || aktuell.anzahlBisher < 1) {
+    throw new Error(`anzahlBisher muss eine ganze Zahl ab 1 sein, erhalten: ${aktuell.anzahlBisher}`);
+  }
+  if (dauer.dauer === 'anzahl' && (!Number.isInteger(dauer.anzahlTermine) || dauer.anzahlTermine < 1)) {
+    throw new Error(`Anzahl Termine muss eine ganze Zahl ab 1 sein, erhalten: ${dauer.anzahlTermine}`);
+  }
+
+  let termin = aktuell.wvDatum;
+  let anzahl = aktuell.anzahlBisher;
+  do {
+    termin = naechsterSerientermin(serie, termin);
+    anzahl += 1;
+  } while (tageZwischen(heute, termin) < 0); // Termin liegt noch vor heute
+
+  if (dauer.dauer === 'anzahl' && anzahl > dauer.anzahlTermine) return { weiter: false };
+  if (dauer.dauer === 'bis_datum' && tageZwischen(dauer.endDatum, termin) > 0) return { weiter: false };
+  return { weiter: true, wvDatum: termin, anzahlBisher: anzahl };
 }
