@@ -1,0 +1,425 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "e7b52d5f-1435-4f0b-bd8f-5d2f95ccd0bd",
+  "prevId": "587caf05-a1d0-4bb0-8cbb-1d5ab4c4e1e1",
+  "tables": {
+    "benutzer": {
+      "name": "benutzer",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "kuerzel": {
+          "name": "kuerzel",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "passwort_hash": {
+          "name": "passwort_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "berechtigung": {
+          "name": "berechtigung",
+          "type": "enum('administrator','sachbearbeiter')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "zeichnung": {
+          "name": "zeichnung",
+          "type": "enum('ppa','iv','ia','ohne')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'ohne'"
+        },
+        "bezeichnung": {
+          "name": "bezeichnung",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "passwort_wechsel_noetig": {
+          "name": "passwort_wechsel_noetig",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "totp_secret": {
+          "name": "totp_secret",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "version": {
+          "name": "version",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        "geaendert_am": {
+          "name": "geaendert_am",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "benutzer_id": {
+          "name": "benutzer_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "benutzer_kuerzel_unique": {
+          "name": "benutzer_kuerzel_unique",
+          "columns": [
+            "kuerzel"
+          ]
+        },
+        "benutzer_email_unique": {
+          "name": "benutzer_email_unique",
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "benutzer_zusatzrecht": {
+      "name": "benutzer_zusatzrecht",
+      "columns": {
+        "benutzer_id": {
+          "name": "benutzer_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recht": {
+          "name": "recht",
+          "type": "enum('buchhaltung','leistungskatalog','kunden','nutzerverwaltung','auswertungen','zeiterfassung_alle')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "benutzer_zusatzrecht_benutzer_id_benutzer_id_fk": {
+          "name": "benutzer_zusatzrecht_benutzer_id_benutzer_id_fk",
+          "tableFrom": "benutzer_zusatzrecht",
+          "tableTo": "benutzer",
+          "columnsFrom": [
+            "benutzer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "benutzer_zusatzrecht_benutzer_id_recht_pk": {
+          "name": "benutzer_zusatzrecht_benutzer_id_recht_pk",
+          "columns": [
+            "benutzer_id",
+            "recht"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "sicherheitsprotokoll": {
+      "name": "sicherheitsprotokoll",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "zeitpunkt": {
+          "name": "zeitpunkt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        "ereignis": {
+          "name": "ereignis",
+          "type": "enum('anmeldung_erfolgreich','anmeldung_fehlgeschlagen','sperre','passwort_geaendert','einmalpasswort_vergeben','sitzung_beendet')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "benutzer_id": {
+          "name": "benutzer_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "kuerzel_eingabe": {
+          "name": "kuerzel_eingabe",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ausgeloest_von_id": {
+          "name": "ausgeloest_von_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "grund": {
+          "name": "grund",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "sicherheitsprotokoll_zeitpunkt": {
+          "name": "sicherheitsprotokoll_zeitpunkt",
+          "columns": [
+            "zeitpunkt"
+          ],
+          "isUnique": false
+        },
+        "sicherheitsprotokoll_benutzer": {
+          "name": "sicherheitsprotokoll_benutzer",
+          "columns": [
+            "benutzer_id",
+            "zeitpunkt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "sicherheitsprotokoll_benutzer_id_benutzer_id_fk": {
+          "name": "sicherheitsprotokoll_benutzer_id_benutzer_id_fk",
+          "tableFrom": "sicherheitsprotokoll",
+          "tableTo": "benutzer",
+          "columnsFrom": [
+            "benutzer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "sicherheitsprotokoll_ausgeloest_von_id_benutzer_id_fk": {
+          "name": "sicherheitsprotokoll_ausgeloest_von_id_benutzer_id_fk",
+          "tableFrom": "sicherheitsprotokoll",
+          "tableTo": "benutzer",
+          "columnsFrom": [
+            "ausgeloest_von_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sicherheitsprotokoll_id": {
+          "name": "sicherheitsprotokoll_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "sitzung": {
+      "name": "sitzung",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "char(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "benutzer_id": {
+          "name": "benutzer_id",
+          "type": "int unsigned",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        "laeuft_ab_am": {
+          "name": "laeuft_ab_am",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "letzte_aktivitaet_am": {
+          "name": "letzte_aktivitaet_am",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "sitzung_laeuft_ab_am": {
+          "name": "sitzung_laeuft_ab_am",
+          "columns": [
+            "laeuft_ab_am"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "sitzung_benutzer_id_benutzer_id_fk": {
+          "name": "sitzung_benutzer_id_benutzer_id_fk",
+          "tableFrom": "sitzung",
+          "tableTo": "benutzer",
+          "columnsFrom": [
+            "benutzer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "sitzung_id": {
+          "name": "sitzung_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "sitzung_token_hash_unique": {
+          "name": "sitzung_token_hash_unique",
+          "columns": [
+            "token_hash"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}
