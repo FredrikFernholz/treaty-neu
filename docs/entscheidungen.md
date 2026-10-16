@@ -145,3 +145,15 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 **Entscheidung.** Benutzer werden nie gelöscht, sondern nur deaktiviert (`aktiv = false`). Das Deaktivieren beendet sofort alle Sitzungen des Benutzers. Die API bietet kein Löschen von Benutzern an. Fremdschlüssel aus Fachtabellen auf `benutzer`, die ab Ausbaustufe 3 entstehen, werden mit `ON DELETE RESTRICT` angelegt, damit ein versehentliches Löschen in der Datenbank scheitert.
 
 **Auswirkung.** Die Löschregeln in Migration `0001_anmeldung` (CASCADE bei Zusatzrechten und Sitzungen, SET NULL beim Sicherheitsprotokoll) bleiben bestehen. Sie greifen nur, wenn ein Benutzer außerhalb von Treaty gelöscht wird, etwa beim Aufräumen von Testdaten, und hinterlassen dann nichts Verwaistes. Das Beenden der Sitzungen beim Deaktivieren gehört zur Benutzerverwaltung in Teilschritt 9.
+
+## 16.10.2026, Fehlversuchssperre je Konto und IP und je IP
+
+**Anlass.** Konzeption 9 sperrt nach fünf Fehlversuchen „für das Konto und die IP-Adresse“, ohne festzulegen, ob das Paar gezählt wird oder beides getrennt. Offen war auch, wann ein Zähler wieder vergessen wird.
+
+**Entscheidung.**
+- Gezählt wird das Paar aus Konto und IP nach Konzeption 9. Ab dem 5. Fehlversuch wird gesperrt, zunächst 30 Sekunden, dann jeweils doppelt so lange, höchstens 15 Minuten.
+- Zusätzlich gibt es einen Zähler nur je IP über alle Konten. Ab 20 Fehlversuchen wird die IP gesperrt, höchstens 5 Minuten. Die Sperre beginnt ebenfalls bei 30 Sekunden und verdoppelt sich (Annahme bei der Umsetzung, vorgegeben war nur die Obergrenze).
+- Ein Zähler wird nach 60 Minuten ohne neuen Fehlversuch vergessen, gerechnet ab dem letzten Fehlversuch bzw. dem Ende der letzten Sperre.
+- Versuche während einer laufenden Sperre zählen nicht und verlängern sie nicht (bei der Umsetzung festgelegt, damit sich ein Konto nicht durch Dauerversuche beliebig lange sperren lässt).
+
+**Auswirkung.** `backend/src/modules/anmeldung/fehlversuchssperre.ts` enthält die Regeln `KONTO_IP_REGEL` und `IP_REGEL`. Die Anmelderoute (Teilschritt 7) verwendet je Regel eine eigene Instanz.

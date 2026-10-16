@@ -4,6 +4,10 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
+### Client-IP hinter Apache nur von 127.0.0.1 übernehmen (seit 16.10.2026, für Teilschritt 7)
+
+Hinter Apache kommen alle Anfragen von 127.0.0.1. Ohne Einstellung sähe die Fehlversuchssperre deshalb für alle Nutzer dieselbe IP, und eine Sperre je IP träfe alle gleichzeitig. Fastify muss die Client-IP aus X-Forwarded-For übernehmen, aber nur, wenn die Anfrage von 127.0.0.1 kommt (`trustProxy: '127.0.0.1'`). Sonst könnte jeder mit einem selbst gesetzten X-Forwarded-For eine beliebige IP vortäuschen. Dazu gehört ein Test: Eine Anfrage mit X-Forwarded-For von 127.0.0.1 übernimmt die angegebene IP, von einer anderen Adresse nicht.
+
 ### Datenbankrechte je Tabelle für Historie und Sicherheitsprotokoll (seit 16.10.2026, Betriebsschritt)
 
 Historie (ab Ausbaustufe 3) und Sicherheitsprotokoll sind reine Anfügetabellen. Bisher ist das nur eine Vereinbarung im Code, denn der App-Benutzer hat SELECT, INSERT, UPDATE und DELETE auf alle Tabellen der Datenbank (`deploy/mysql/setup.sh`). Im Betriebsschritt werden die Rechte von `treaty_neu_app` je Tabelle vergeben, auf `historie` und `sicherheitsprotokoll` nur SELECT und INSERT. Für das Aufräumen des Sicherheitsprotokolls nach 90 Tagen bekommt der Worker einen eigenen Benutzer `treaty_neu_wartung` mit DELETE nur auf `sicherheitsprotokoll`, den nur der Worker verwendet.
