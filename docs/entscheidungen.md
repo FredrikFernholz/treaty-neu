@@ -61,3 +61,11 @@ Quelle für alle Punkte dieses Abschnitts ist eine Rückfrage bei N. Zibulski am
 ### Reihenfolge der Ausbaustufen
 
 **Entscheidung.** Das Vertragsmanagement wird als eigene Ausbaustufe direkt nach Mieten umgesetzt. Weitere Wünsche aus Entwicklerdoku und Geschäftsführungsvorgabe (Texterkennung, automatischer Widerspruch, Matching, Kunden-Upload, Anbindung an n8n oder make) kommen erst nach dem Grundsystem.
+
+## 16.10.2026, Technische Rahmenbedingungen gelten trotz PRD vom 13.10.2026 weiter
+
+**Anlass.** Der PRD vom 13.10.2026 fehlen die Ergänzungen vom 01.10.2026, also der Abschnitt Betrieb und Auslieferung und die festgelegten technischen Rahmenbedingungen. Stattdessen empfiehlt sie, die technische Konzeption auf das Vertragsmanagement-Backend des Prototyps in PHP aufzusetzen (Abgleich A-03).
+
+**Entscheidung.** Die technischen Rahmenbedingungen vom 01.10.2026 gelten unverändert weiter. Dazu gehören TypeScript auf Node.js, MySQL 8.0, die Auslieferung über Apache, eine eigene Benutzerverwaltung, die Ablage der Dateien im Dateisystem, Outlook nur mit Entwürfen, Rechnungen nach ZUGFeRD EN 16931 mit der CSV-Rechnungsliste und die Übernahme der Bestandsdaten. Dass diese Punkte in der PRD vom 13.10.2026 fehlen, gilt als Versehen. Die Empfehlung, auf dem PHP-Backend aufzusetzen, wird nicht übernommen.
+
+**Auswirkung.** Konzeption und CLAUDE.md bleiben für die Technik maßgeblich. Der PHP-Port unter `docs/referenz/prototyp-backend/` dient weiter nur zum Nachschlagen.

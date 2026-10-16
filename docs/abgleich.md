@@ -19,8 +19,8 @@
 - Konzeption Abschnitte 2 und 15 sowie CLAUDE.md legen die Rahmenbedingungen unverändert fest, im Projekt gibt es kein PHP
 - Empfehlung: Rahmenbedingungen gelten weiter wie in Konzeption und CLAUDE.md. Das Fachteam bitten, die Ergänzungen vom 01.10.2026 wieder in die PRD aufzunehmen
 - Betrifft: alle Stufen, insbesondere Betrieb und Office (ZUGFeRD)
-- Status: offen
-- Entscheidung: –
+- Status: entschieden
+- Entscheidung: Rahmenbedingungen vom 01.10.2026 gelten unverändert weiter, ihr Fehlen in der PRD vom 13.10.2026 gilt als Versehen, kein Aufsetzen auf dem PHP-Backend, siehe docs/entscheidungen.md vom 16.10.2026
 
 ## A-04 Versand der Vertrags-Erinnerungen
 - PRD 6 und Felddoku Vertragsmanagement: Erinnerungen zu Optionsfrist, Kündigung bis, Mietende und Indexanpassung gehen per E-Mail, Chat oder beidem an ADH-Kürzel und an Kontakte der Kunden. Im Prototyp simuliert, die PRD nennt den Versandweg selbst als offenen Punkt
@@ -71,6 +71,7 @@
 - PRD 13: Für die Datenhaltung des Moduls gilt schema.sql des Prototyps, im Zweifel vor der Felddoku
 - schema.sql weicht von den Leitplanken der Konzeption ab: keine Spalte version, Zeitpunkte als DATETIME statt DATETIME(3) in UTC, Status-Vorbelegung aktiv statt vorgeschlagen wie im Formular laut Felddoku, Archivieren über DELETE
 - Empfehlung: schema.sql bestimmt die fachlichen Felder und Tabellen, Typen, version, Zeitstempel und API-Form folgen der Konzeption. Bereich vertraege in die Rechtematrix aufnehmen (beide Berechtigungsstufen, laut PRD 3)
+- Vorgabe 16.10.2026: Vor Beginn der Stufe Vertragsmanagement wird die Konzeption in einem eigenen Arbeitsschritt um das Modul ergänzt. Vorlage ist schema.sql, aber mit Spalte version und Zeitpunkten als DATETIME(3) gemäß den Leitplanken
 - Betrifft: Stufe Vertragsmanagement
 - Status: offen
 - Entscheidung: –
