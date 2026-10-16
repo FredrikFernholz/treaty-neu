@@ -3,6 +3,7 @@ import { ZUSATZRECHT_BEZEICHNUNG } from '@shared/rechte/rechtematrix.js';
 import type { Benutzer } from '@shared/schemas/benutzer.js';
 import { useQuery } from '@tanstack/vue-query';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { listeBenutzer } from '../api/benutzer';
 import { kreuzchenliste } from '../rechteuebersicht';
 import { BERECHTIGUNG_BEZEICHNUNG, ZEICHNUNG_BEZEICHNUNG } from '../texte';
@@ -11,6 +12,7 @@ import { BERECHTIGUNG_BEZEICHNUNG, ZEICHNUNG_BEZEICHNUNG } from '../texte';
 // Kreuzchenliste der Rechtematrix. Die Reihenfolge der Liste kommt vom Server
 // (deaktivierte am Ende, sonst nach Name).
 
+const router = useRouter();
 const reiter = ref<'benutzer' | 'rechte'>('benutzer');
 const { data: benutzer, error, isPending } = useQuery({ queryKey: ['benutzer'], queryFn: listeBenutzer });
 const rechte = kreuzchenliste();
@@ -27,11 +29,22 @@ function zeilenklasse({ row }: { row: Benutzer }) {
 </script>
 
 <template>
-  <h2>Nutzerverwaltung</h2>
+  <div class="titelzeile">
+    <h2>Nutzerverwaltung</h2>
+    <el-button type="primary" @click="router.push({ name: 'benutzer-neu' })">Neuer Benutzer</el-button>
+  </div>
   <el-tabs v-model="reiter">
     <el-tab-pane label="Benutzer" name="benutzer">
       <el-alert v-if="error" type="error" :closable="false" :title="error.message" />
-      <el-table v-else v-loading="isPending" :data="benutzer ?? []" :row-class-name="zeilenklasse" empty-text="Keine Benutzer">
+      <el-table
+        v-else
+        v-loading="isPending"
+        :data="benutzer ?? []"
+        :row-class-name="zeilenklasse"
+        empty-text="Keine Benutzer"
+        class="anklickbar"
+        @row-click="(b: Benutzer) => router.push({ name: 'benutzer-bearbeiten', params: { id: b.id } })"
+      >
         <el-table-column prop="kuerzel" label="Kürzel" width="100" />
         <el-table-column label="Name" min-width="220">
           <template #default="{ row }">
@@ -58,9 +71,9 @@ function zeilenklasse({ row }: { row: Benutzer }) {
 
     <el-tab-pane label="Rechtematrix" name="rechte">
       <p class="erlaeuterung">
-        Wer welchen Bereich nutzen darf. Zusatzrechte gelten nur zusätzlich und nehmen nie ein Recht weg. Das Zusatzrecht
-        „{{ ZUSATZRECHT_BEZEICHNUNG.zeiterfassung_alle }}“ öffnet keinen Bereich, sondern zeigt in der Zeiterfassung die
-        Buchungen aller statt nur der eigenen.
+        Wer welchen Bereich nutzen darf. Zusatzrechte gelten nur zusätzlich und nehmen nie ein Recht weg. In der
+        Zeiterfassung sehen Sachbearbeiter/innen nur die eigenen Buchungen, mit dem Zusatzrecht
+        „{{ ZUSATZRECHT_BEZEICHNUNG.zeiterfassung_alle }}“ die aller.
       </p>
       <el-table :data="rechte" class="matrix">
         <el-table-column prop="bereich" label="Bereich" min-width="200" />
@@ -68,7 +81,9 @@ function zeilenklasse({ row }: { row: Benutzer }) {
           <template #default="{ row }">{{ row.administrator ? '✓' : '–' }}</template>
         </el-table-column>
         <el-table-column label="Sachbearbeiter/in" width="160" align="center">
-          <template #default="{ row }">{{ row.sachbearbeiter ? '✓' : '–' }}</template>
+          <template #default="{ row }">
+            {{ row.sachbearbeiter ? '✓' : '–' }}<span v-if="row.sachbearbeiterHinweis"> ({{ row.sachbearbeiterHinweis }})</span>
+          </template>
         </el-table-column>
         <el-table-column label="Freischaltung per Zusatzrecht" min-width="220">
           <template #default="{ row }">{{ row.perZusatzrecht ?? '–' }}</template>
@@ -79,6 +94,15 @@ function zeilenklasse({ row }: { row: Benutzer }) {
 </template>
 
 <style scoped>
+.titelzeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+}
+.anklickbar :deep(tbody tr) {
+  cursor: pointer;
+}
 .zusaetzlich {
   font-size: 12px;
   color: var(--el-color-primary);

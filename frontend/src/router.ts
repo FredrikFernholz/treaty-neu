@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { entscheideNavigation } from './navigation';
 import AnmeldeSeite from './seiten/AnmeldeSeite.vue';
+import BenutzerFormularSeite from './seiten/BenutzerFormularSeite.vue';
 import BenutzerSeite from './seiten/BenutzerSeite.vue';
 import KeinZugriffSeite from './seiten/KeinZugriffSeite.vue';
 import PasswortAendernSeite from './seiten/PasswortAendernSeite.vue';
@@ -26,6 +27,14 @@ export const router = createRouter({
     },
     { path: '/kein-zugriff', name: 'kein-zugriff', component: KeinZugriffSeite },
     { path: '/benutzer', name: 'benutzer', component: BenutzerSeite, meta: { bereich: 'nutzerverwaltung' } },
+    // "neu" vor ":id", sonst würde "neu" als Benutzernummer gelesen
+    { path: '/benutzer/neu', name: 'benutzer-neu', component: BenutzerFormularSeite, meta: { bereich: 'nutzerverwaltung' } },
+    {
+      path: '/benutzer/:id(\\d+)',
+      name: 'benutzer-bearbeiten',
+      component: BenutzerFormularSeite,
+      meta: { bereich: 'nutzerverwaltung' },
+    },
     // Unbekannte Adressen führen zur Startseite.
     { path: '/:pfad(.*)*', redirect: { name: 'start' } },
   ],

@@ -52,7 +52,8 @@ async function personenmenue(befehl: string) {
       </el-dropdown>
     </el-header>
     <el-main>
-      <RouterView />
+      <!-- key: beim Wechsel von /benutzer/neu zu /benutzer/7 entsteht die Seite neu -->
+      <RouterView :key="route.fullPath" />
     </el-main>
   </el-container>
 </template>

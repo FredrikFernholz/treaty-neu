@@ -18,17 +18,23 @@ describe('kreuzchenliste', () => {
   // Erwartung unabhängig ausgeschrieben nach PRD 3, Konzeption 8 und Entscheidung 16.10.2026
   test('entspricht der Rechtematrix', () => {
     expect(kreuzchenliste()).toEqual([
-      { bereich: 'Betriebskosten', administrator: true, sachbearbeiter: true, perZusatzrecht: null },
-      { bereich: 'Mieten', administrator: true, sachbearbeiter: true, perZusatzrecht: null },
-      { bereich: 'Vertragsmanagement', administrator: true, sachbearbeiter: true, perZusatzrecht: null },
-      { bereich: 'Aufgaben', administrator: true, sachbearbeiter: true, perZusatzrecht: null },
-      { bereich: 'Office – Zeiterfassung', administrator: true, sachbearbeiter: true, perZusatzrecht: null },
-      { bereich: 'Kontaktdatenbank', administrator: true, sachbearbeiter: true, perZusatzrecht: null },
-      { bereich: 'Office – Buchhaltung', administrator: true, sachbearbeiter: false, perZusatzrecht: 'Office – Buchhaltung' },
-      { bereich: 'Kundenverwaltung', administrator: true, sachbearbeiter: false, perZusatzrecht: 'Kundenverwaltung' },
-      { bereich: 'Leistungskatalog', administrator: true, sachbearbeiter: false, perZusatzrecht: 'Leistungskatalog' },
-      { bereich: 'Nutzerverwaltung', administrator: true, sachbearbeiter: false, perZusatzrecht: 'Nutzerverwaltung' },
-      { bereich: 'Auswertungen', administrator: true, sachbearbeiter: false, perZusatzrecht: 'Auswertungen' },
+      { bereich: 'Betriebskosten', administrator: true, sachbearbeiter: true, sachbearbeiterHinweis: null, perZusatzrecht: null },
+      { bereich: 'Mieten', administrator: true, sachbearbeiter: true, sachbearbeiterHinweis: null, perZusatzrecht: null },
+      { bereich: 'Vertragsmanagement', administrator: true, sachbearbeiter: true, sachbearbeiterHinweis: null, perZusatzrecht: null },
+      { bereich: 'Aufgaben', administrator: true, sachbearbeiter: true, sachbearbeiterHinweis: null, perZusatzrecht: null },
+      {
+        bereich: 'Office – Zeiterfassung',
+        administrator: true,
+        sachbearbeiter: true,
+        sachbearbeiterHinweis: 'nur eigene',
+        perZusatzrecht: 'Zeiterfassung aller Mitarbeitenden',
+      },
+      { bereich: 'Kontaktdatenbank', administrator: true, sachbearbeiter: true, sachbearbeiterHinweis: null, perZusatzrecht: null },
+      { bereich: 'Office – Buchhaltung', administrator: true, sachbearbeiter: false, sachbearbeiterHinweis: null, perZusatzrecht: 'Office – Buchhaltung' },
+      { bereich: 'Kundenverwaltung', administrator: true, sachbearbeiter: false, sachbearbeiterHinweis: null, perZusatzrecht: 'Kundenverwaltung' },
+      { bereich: 'Leistungskatalog', administrator: true, sachbearbeiter: false, sachbearbeiterHinweis: null, perZusatzrecht: 'Leistungskatalog' },
+      { bereich: 'Nutzerverwaltung', administrator: true, sachbearbeiter: false, sachbearbeiterHinweis: null, perZusatzrecht: 'Nutzerverwaltung' },
+      { bereich: 'Auswertungen', administrator: true, sachbearbeiter: false, sachbearbeiterHinweis: null, perZusatzrecht: 'Auswertungen' },
     ]);
   });
 });
