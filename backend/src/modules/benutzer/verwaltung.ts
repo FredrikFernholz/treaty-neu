@@ -1,6 +1,6 @@
 import { and, eq, ne, sql } from 'drizzle-orm';
 import type { z } from 'zod';
-import { benutzer, benutzerZusatzrecht } from '../../db/schema.js';
+import { benutzer, benutzerZusatzrecht, sitzung } from '../../db/schema.js';
 import type { DbZugriff } from '../../db/zugriff.js';
 import type { ApiFehlercode } from '../../shared/schemas/api-fehler.js';
 import { RESERVIERTE_KUERZEL, type BenutzerDetail, type benutzerAendernSchema, type benutzerAnlegenSchema } from '../../shared/schemas/benutzer.js';
@@ -8,17 +8,19 @@ import { schlageKuerzelVor } from '../../shared/regeln/kuerzel.js';
 import { erzeugeEinmalpasswort } from '../anmeldung/einmalpasswort.js';
 import { hashePasswort } from '../anmeldung/passwort-hash.js';
 import { protokolliere } from '../anmeldung/sicherheitsprotokoll.js';
-import type { Angemeldet } from '../anmeldung/sitzungen.js';
+import { beendeAlleSitzungen, beendeSitzungNachId, type Angemeldet } from '../anmeldung/sitzungen.js';
 import { ladeBenutzer } from './benutzer.js';
 
-// Anlegen und Ändern von Benutzern (Teilschritt 9b, Entscheidungen 16.10.2026).
+// Anlegen, Ändern, Deaktivieren, Einmalpasswort und Sitzungen beenden (Teilschritte 9b
+// und 9c, Entscheidungen 16.10.2026).
 //
 // Wer darf was (Abgleich A-19):
 //  - Administratoren dürfen alles, außer die eigene Berechtigungsstufe herabsetzen.
 //  - Sachbearbeiter/innen mit dem Zusatzrecht nutzerverwaltung verwalten nur
 //    Sachbearbeiter/innen und nicht sich selbst. Sie können niemanden zum Administrator
 //    machen und keine Zusatzrechte vergeben oder entziehen.
-//  - Der letzte aktive Administrator kann nicht herabgestuft werden.
+//  - Niemand kann sich selbst deaktivieren.
+//  - Der letzte aktive Administrator kann weder herabgestuft noch deaktiviert werden.
 // Das Kürzel ist nach dem Anlegen unveränderlich (Konzeption 6.2).
 // Änderungen an Berechtigungsstufe und Zusatzrechten werden nicht protokolliert (PRD 3,
 // Abgleich A-17). Sie wirken sofort, weil jede Anfrage die Rechte frisch liest.
@@ -194,4 +196,128 @@ export async function aendereBenutzer(
   const geaendert = await ladeBenutzer(db, id);
   if (!geaendert) throw new Error('Geänderter Benutzer nicht gefunden');
   return geaendert;
+}
+
+type Herkunft = { ip: string; userAgent: string | null };
+
+/**
+ * Prüft, ob die handelnde Person die Zielperson verwalten darf (Abgleich A-19).
+ * Administratoren dürfen jeden, mit dem Zusatzrecht nutzerverwaltung nur
+ * Sachbearbeiter/innen und nicht sich selbst.
+ */
+function pruefeVerwaltbar(handelnder: Handelnder, ziel: { id: number; berechtigung: string }, aktion: string) {
+  if (handelnder.berechtigung === 'administrator') return;
+  if (ziel.berechtigung === 'administrator') throw nurAdministratoren(`Einen Administrator kann nur ein Administrator ${aktion}.`);
+  if (ziel.id === handelnder.benutzerId) throw nurAdministratoren(`Das eigene Konto kann nur ein Administrator ${aktion}.`);
+}
+
+async function ladeGesperrt(tx: DbZugriff, id: number) {
+  const [ziel] = await tx.select().from(benutzer).where(eq(benutzer.id, id)).for('update');
+  if (!ziel) throw new Verwaltungsfehler(404, 'nicht_gefunden', 'Diesen Benutzer gibt es nicht.');
+  return ziel;
+}
+
+/**
+ * Deaktiviert oder aktiviert ein Konto (Entscheidung 16.10.2026: Benutzer werden nie
+ * gelöscht). Beim Deaktivieren enden sofort alle Sitzungen des Kontos.
+ */
+export async function setzeAktiv(
+  db: DbZugriff,
+  handelnder: Handelnder,
+  id: number,
+  eingabe: { aktiv: boolean; version: number },
+  jetzt: Date,
+): Promise<BenutzerDetail> {
+  await db.transaction(async (tx) => {
+    const ziel = await ladeGesperrt(tx, id);
+    if (ziel.version !== eingabe.version) {
+      throw new Verwaltungsfehler(409, 'konflikt', 'Der Benutzer wurde inzwischen geändert. Bitte neu laden.');
+    }
+    pruefeVerwaltbar(handelnder, ziel, eingabe.aktiv ? 'aktivieren' : 'deaktivieren');
+
+    if (!eingabe.aktiv && ziel.aktiv) {
+      if (ziel.id === handelnder.benutzerId) {
+        throw new Verwaltungsfehler(403, 'nicht_erlaubt', 'Das eigene Konto kann nicht deaktiviert werden.');
+      }
+      if (ziel.berechtigung === 'administrator') {
+        const andereAdmins = await tx
+          .select({ id: benutzer.id })
+          .from(benutzer)
+          .where(and(eq(benutzer.berechtigung, 'administrator'), eq(benutzer.aktiv, true), ne(benutzer.id, id)))
+          .for('update');
+        if (andereAdmins.length === 0) {
+          throw new Verwaltungsfehler(403, 'nicht_erlaubt', 'Der letzte aktive Administrator kann nicht deaktiviert werden.');
+        }
+      }
+    }
+
+    await tx
+      .update(benutzer)
+      .set({ aktiv: eingabe.aktiv, version: sql`${benutzer.version} + 1` })
+      .where(and(eq(benutzer.id, id), eq(benutzer.version, eingabe.version)));
+    if (!eingabe.aktiv) {
+      await beendeAlleSitzungen(tx, id, 'konto_deaktiviert', jetzt, { ausgeloestVonId: handelnder.benutzerId });
+    }
+  });
+  const ergebnis = await ladeBenutzer(db, id);
+  if (!ergebnis) throw new Error('Benutzer nicht gefunden');
+  return ergebnis;
+}
+
+/**
+ * Vergibt ein neues Einmalpasswort (Konzeption 9). Das bisherige Passwort gilt danach
+ * nicht mehr, bei der nächsten Anmeldung ist ein Passwortwechsel nötig, und alle
+ * Sitzungen des Kontos enden (Entscheidung 16.10.2026). Das eigene Konto ist
+ * ausgeschlossen, dafür gibt es den Passwortwechsel.
+ */
+export async function vergibEinmalpasswort(
+  db: DbZugriff,
+  handelnder: Handelnder,
+  id: number,
+  herkunft: Herkunft,
+  jetzt: Date,
+): Promise<{ einmalpasswort: string; kuerzel: string }> {
+  const einmalpasswort = erzeugeEinmalpasswort();
+  const passwortHash = await hashePasswort(einmalpasswort);
+  const kuerzel = await db.transaction(async (tx) => {
+    const ziel = await ladeGesperrt(tx, id);
+    pruefeVerwaltbar(handelnder, ziel, 'mit einem Einmalpasswort versehen');
+    if (ziel.id === handelnder.benutzerId) {
+      throw new Verwaltungsfehler(403, 'nicht_erlaubt', 'Für das eigene Konto bitte das Passwort ändern statt ein Einmalpasswort zu vergeben.');
+    }
+    await tx
+      .update(benutzer)
+      .set({ passwortHash, passwortWechselNoetig: true, version: sql`${benutzer.version} + 1` })
+      .where(eq(benutzer.id, id));
+    await beendeAlleSitzungen(tx, id, 'einmalpasswort', jetzt, { ausgeloestVonId: handelnder.benutzerId });
+    await protokolliere(tx, {
+      ereignis: 'einmalpasswort_vergeben',
+      zeitpunkt: jetzt,
+      benutzerId: id,
+      ausgeloestVonId: handelnder.benutzerId,
+      ...herkunft,
+      grund: 'neu vergeben',
+    });
+    return ziel.kuerzel;
+  });
+  return { einmalpasswort, kuerzel };
+}
+
+/** Beendet eine einzelne Sitzung eines Benutzers aus der Nutzerverwaltung heraus. */
+export async function beendeSitzungDurchVerwaltung(
+  db: DbZugriff,
+  handelnder: Handelnder,
+  benutzerId: number,
+  sitzungId: number,
+  jetzt: Date,
+): Promise<void> {
+  const [ziel] = await db.select().from(benutzer).where(eq(benutzer.id, benutzerId));
+  if (!ziel) throw new Verwaltungsfehler(404, 'nicht_gefunden', 'Diesen Benutzer gibt es nicht.');
+  pruefeVerwaltbar(handelnder, ziel, 'abmelden');
+  const [s] = await db
+    .select({ id: sitzung.id })
+    .from(sitzung)
+    .where(and(eq(sitzung.id, sitzungId), eq(sitzung.benutzerId, benutzerId)));
+  if (!s) throw new Verwaltungsfehler(404, 'nicht_gefunden', 'Diese Sitzung gibt es nicht (mehr).');
+  await beendeSitzungNachId(db, sitzungId, handelnder.benutzerId, jetzt);
 }

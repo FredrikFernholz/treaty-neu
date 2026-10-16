@@ -130,6 +130,18 @@ export class Fehlversuchssperre {
     this.eintraege.delete(schluessel);
   }
 
+  /** Entfernt alle Zähler, deren Schlüssel mit dem Anfang beginnt. Gibt die Anzahl zurück. */
+  vergissMitAnfang(anfang: string): number {
+    let anzahl = 0;
+    for (const schluessel of this.eintraege.keys()) {
+      if (schluessel.startsWith(anfang)) {
+        this.eintraege.delete(schluessel);
+        anzahl += 1;
+      }
+    }
+    return anzahl;
+  }
+
   /** Entfernt alle Einträge, die vergessen werden können. Hält den Speicher klein. */
   aufraeumen(): void {
     for (const [schluessel, eintrag] of this.eintraege) {

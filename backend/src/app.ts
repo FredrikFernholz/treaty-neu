@@ -57,8 +57,10 @@ export function baueApp(
     }
   });
 
-  registriereAnmelderouten(app, optionen.sperren ?? neueSperren());
-  registriereBenutzerrouten(app);
+  // Beide Routengruppen teilen sich dieselben Zähler der Fehlversuchssperre.
+  const sperren = optionen.sperren ?? neueSperren();
+  registriereAnmelderouten(app, sperren);
+  registriereBenutzerrouten(app, sperren);
 
   return app;
 }

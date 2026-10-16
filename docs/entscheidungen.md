@@ -219,3 +219,16 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Die Benutzerliste wird nicht seitenweise aufgeteilt, weil ADH nur wenige Dutzend Benutzer hat. Das ist eine bewusste Ausnahme von der Leitplanke, Listen serverseitig zu paginieren.
 
 **Auswirkung.** Umgesetzt in Teilschritt 9 (`backend/src/modules/benutzer`), mit Tests für jede dieser Regeln.
+
+## 16.10.2026, Einmalpasswörter in der Benutzerverwaltung
+
+**Anlass.** Bei Deaktivieren, Einmalpasswort und Sitzung beenden (Teilschritt 9c) waren der Umgang mit Einmalpasswörtern in Antworten und Logs, das eigene Konto, deaktivierte Konten und die Fehlversuchssperre festzulegen.
+
+**Entscheidung.**
+- Jede Antwort, die ein Einmalpasswort enthält (Anlegen eines Benutzers, Neuvergabe), trägt `Cache-Control: no-store`, damit weder Browser noch ein Proxy sie zwischenspeichern.
+- Einmalpasswörter erscheinen nie in der Log-Ausgabe, auch nicht auf der ausführlichsten Stufe. Ein Test fängt die pino-Ausgabe ab und durchsucht sie.
+- Für das eigene Konto kann niemand ein Einmalpasswort vergeben, auch kein Administrator. Dafür gibt es den Passwortwechsel.
+- Einem deaktivierten Konto kann ein Einmalpasswort vergeben werden. Die Anmeldung bleibt trotzdem gesperrt, bis das Konto wieder aktiv ist. So lässt sich beim Reaktivieren gleich ein neues Passwort vergeben.
+- Beim Vergeben eines Einmalpassworts werden alle Zähler „Konto und IP“ zu diesem Kürzel gelöscht, über alle IPs. Die reinen IP-Zähler bleiben unverändert. Ein gesperrtes Konto kann sich damit sofort mit dem neuen Passwort anmelden, eine gesperrte IP bleibt gesperrt.
+
+**Auswirkung.** Umgesetzt in `backend/src/modules/benutzer` (`vergibEinmalpasswort`, Routen) und `backend/src/modules/anmeldung` (`vergissKontoSperren`, `Fehlversuchssperre.vergissMitAnfang`), jeweils mit Tests.

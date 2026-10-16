@@ -96,6 +96,18 @@ describe('ersteMeldungWaehrendSperre', () => {
   });
 });
 
+describe('vergissMitAnfang', () => {
+  test('löscht nur die Zähler mit diesem Schlüsselanfang', () => {
+    fehlversuche(5, 'DW|127.0.0.1');
+    fehlversuche(5, 'DW|10.0.0.5');
+    fehlversuche(5, 'DWX|127.0.0.1'); // anderes Kürzel, das mit DW beginnt
+    expect(sperre.vergissMitAnfang('DW|')).toBe(2);
+    expect(sperre.pruefe('DW|127.0.0.1')).toEqual({ gesperrt: false });
+    expect(sperre.pruefe('DW|10.0.0.5')).toEqual({ gesperrt: false });
+    expect(sperre.pruefe('DWX|127.0.0.1')).toMatchObject({ gesperrt: true });
+  });
+});
+
 describe('erfolgreiche Anmeldung', () => {
   test('setzt den Zähler zurück', () => {
     fehlversuche(4);

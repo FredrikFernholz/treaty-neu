@@ -52,6 +52,15 @@ function kontoIpSchluessel(kuerzel: string, ip: string): string {
   return `${kuerzel.toUpperCase()}|${ip}`;
 }
 
+/**
+ * Löscht alle Zähler "Konto und IP" zu einem Kürzel, über alle IPs. Die reinen
+ * IP-Zähler bleiben (Entscheidung 16.10.2026). Aufgerufen, wenn ein Administrator ein
+ * Einmalpasswort vergibt, damit die Person sich sofort damit anmelden kann.
+ */
+export function vergissKontoSperren(sperren: Sperren, kuerzel: string): void {
+  sperren.kontoIp.vergissMitAnfang(kontoIpSchluessel(kuerzel, ''));
+}
+
 /** Antwort 429 mit Retry-After in ganzen Sekunden, aufgerundet. */
 function zuVieleVersuche(antwort: FastifyReply, nochMs: number): FastifyReply {
   antwort.header('Retry-After', String(Math.ceil(nochMs / 1000)));

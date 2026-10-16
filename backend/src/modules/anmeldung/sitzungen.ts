@@ -28,7 +28,14 @@ export const SITZUNG_HOECHSTENS_MS = 12 * 60 * 60 * 1000;
 export const AKTIVITAET_FORTSCHREIBEN_AB_MS = 60 * 1000;
 
 /** Gründe für das Ende einer Sitzung, wie sie im Sicherheitsprotokoll stehen. */
-export type Sitzungsende = 'abgemeldet' | 'inaktiv' | 'hoechstdauer' | 'durch_administrator' | 'konto_deaktiviert' | 'passwort_geaendert';
+export type Sitzungsende =
+  | 'abgemeldet'
+  | 'inaktiv'
+  | 'hoechstdauer'
+  | 'durch_administrator'
+  | 'konto_deaktiviert'
+  | 'passwort_geaendert'
+  | 'einmalpasswort';
 
 /** Was nach einer gültigen Sitzung über die angemeldete Person bekannt ist. */
 export type Angemeldet = {
