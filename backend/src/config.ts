@@ -28,6 +28,25 @@ const konfigSchema = z.object({
 
 export type Konfig = z.infer<typeof konfigSchema>;
 
+/**
+ * Parameter für das Hashen von Passwörtern mit argon2id (Entscheidung 16.10.2026).
+ * Sie entsprechen der Mindestempfehlung von OWASP (Password Storage Cheat Sheet):
+ * argon2id mit 19MiB Speicher, 2 Durchläufen und 1 Thread. Bewusst eine feste Konstante
+ * und kein Wert aus .env, damit die Stärke im Repository nachvollziehbar ist und im
+ * Betrieb nicht versehentlich abgeschwächt wird.
+ *
+ * Jeder Hash speichert seine Parameter selbst (z. B. "$argon2id$v=19$m=19456,t=2,p=1$…").
+ * Werden die Werte später erhöht, lassen sich alte Hashes also weiter prüfen.
+ */
+export const ARGON2_PARAMETER = {
+  // 2 steht für Argon2id. Das Paket @node-rs/argon2 definiert Algorithm als const enum,
+  // das sich mit isolatedModules nicht als Wert verwenden lässt, deshalb die Zahl.
+  algorithm: 2,
+  memoryCost: 19456, // in KiB, also 19MiB
+  timeCost: 2,
+  parallelism: 1,
+} as const;
+
 function ladeKonfig(): Konfig {
   const ergebnis = konfigSchema.safeParse(process.env);
   if (!ergebnis.success) {
