@@ -32,6 +32,10 @@ export function baueApp(optionen: { logger?: FastifyServerOptions['logger'] } = 
   // und die Datenbank erreichbar ist. Dateiablage und Worker kommen später dazu.
   // Die Form der Antwort legt das gemeinsame Schema fest (shared/schemas/health.ts).
   // Weicht die Antwort davon ab, meldet die Typprüfung einen Fehler.
+  // Bewusst öffentlich: Die Route liegt außerhalb von /api/v1, die Zugriffsprüfung greift
+  // hier also nicht. Das ist gewollt, damit Überwachung und Prüfschritte ohne Anmeldung
+  // funktionieren. Die Antwort enthält deshalb nur den Zustand ("ok" / "fehler") und
+  // keine Details wie Versionen, Fehlermeldungen oder Namen von Datenbanken.
   app.get('/api/health', async (_anfrage, antwort) => {
     try {
       await pool.query('SELECT 1');
