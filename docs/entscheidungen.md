@@ -232,3 +232,20 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Beim Vergeben eines Einmalpassworts werden alle Zähler „Konto und IP“ zu diesem Kürzel gelöscht, über alle IPs. Die reinen IP-Zähler bleiben unverändert. Ein gesperrtes Konto kann sich damit sofort mit dem neuen Passwort anmelden, eine gesperrte IP bleibt gesperrt.
 
 **Auswirkung.** Umgesetzt in `backend/src/modules/benutzer` (`vergibEinmalpasswort`, Routen) und `backend/src/modules/anmeldung` (`vergissKontoSperren`, `Fehlversuchssperre.vergissMitAnfang`), jeweils mit Tests.
+
+## 16.10.2026, Frontend der Ausbaustufe 1: Tests, Cookie-Prüfung, Konflikte
+
+**Anlass.** Vor Teilschritt 10 waren die Teststrategie im Frontend, die Prüfung des Sitzungscookies im Browser und der Umgang mit 409 in der Oberfläche festzulegen.
+
+**Entscheidung.**
+- Im Frontend gibt es keine Komponententests (kein `@vue/test-utils`, kein `jsdom`). `vitest` kommt als Entwicklungspaket ins Frontend, nur für den API-Client und den Router-Schutz. Die Abläufe im Browser prüft Teilschritt 11 mit Playwright.
+- Ob der Browser das Cookie `__Host-treaty_sitzung` über den Entwicklungsserver annimmt, wird in Teilschritt 10a gemeinsam im Browser über `localhost:5173` geprüft.
+- Bei 409 `konflikt` bietet die Benutzerverwaltung „Neu laden“ an. Der Konfliktdialog wird als wiederverwendbare Komponente gebaut, die später auch eigene Eingaben neben dem neuen Stand zeigen kann (Merkposten für Ausbaustufe 3).
+
+## 16.10.2026, Ergebnis der Cookie-Prüfung im Browser
+
+**Anlass.** Die Entscheidung zum Sitzungscookie sah vor, das Präfix `__Host-` in Teilschritt 10a über localhost im Browser zu prüfen.
+
+**Entscheidung.** Das Präfix bleibt. Der Browsertest durch den Nutzer in Chrome über `http://localhost:5173` war erfolgreich. Das Cookie `__Host-treaty_sitzung` wurde mit Domain localhost, Path `/`, Ablauf „Sitzung“, HttpOnly, Secure und SameSite Strict gesetzt. Anmeldung mit Einmalpasswort, Pflichtwechsel, Neuladen der Seite, Abmelden und erneutes Anmelden funktionierten.
+
+**Auswirkung.** Keine Änderung nötig. Die Abläufe werden in Teilschritt 11 zusätzlich mit Playwright automatisiert geprüft.

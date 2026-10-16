@@ -4,6 +4,10 @@ Offene technische Punkte, die bewusst zurückgestellt sind. Sie sind keine Entsc
 
 ## Offen
 
+### Konfliktdialog mit eigenen Eingaben neben dem neuen Stand (seit 16.10.2026, Ausbaustufe 3)
+
+Bei 409 `konflikt` bietet die Benutzerverwaltung nur „Neu laden“ an (Entscheidung 16.10.2026). Der Konfliktdialog wird aber als wiederverwendbare Komponente gebaut. Für das Datenblatt in Ausbaustufe 3 soll er die eigenen Eingaben neben dem inzwischen gespeicherten Stand zeigen, damit nichts verloren geht (Konzeption 6.1, optimistisches Sperren). Dafür braucht die Komponente eine Möglichkeit, beide Stände je Feld gegenüberzustellen.
+
 ### Kürzel im Altsystem auf das neue Format prüfen (seit 16.10.2026, Ausbaustufe 7)
 
 Kürzel haben in Treaty 2.0 2 bis 10 Zeichen, nur Großbuchstaben und Ziffern, und „ADH“ ist reserviert (Entscheidung 16.10.2026, `backend/src/shared/schemas/benutzer.ts`). Vor der Migration ist zu prüfen, ob alle Kürzel des Altsystems diesem Format entsprechen und keines „ADH“ lautet. Abweichungen dem Nutzer vorlegen, bevor etwas umbenannt wird, denn das Kürzel ist das Anmeldemerkmal und hängt an vielen Datensätzen.
