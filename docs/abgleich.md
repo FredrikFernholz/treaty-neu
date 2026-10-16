@@ -128,3 +128,21 @@
 - Betrifft: Stufe 1 (Benutzerverwaltung, Sicherheitsprotokoll)
 - Status: offen
 - Entscheidung: –
+
+## A-18 Kürzel bei der Neuanlage: automatisch oder nur vorgeschlagen
+- Felddoku Geteilte Funktionen („Nutzer anlegen/bearbeiten“): Das Kürzel wird bei Neuanlage ohne eigene Eingabe automatisch aus dem Namen gebildet
+- Konzeption 6.2: Das Kürzel wird bei Anlage aus dem Namen vorgeschlagen, ist also änderbar, bevor gespeichert wird
+- Offen ist außerdem die Bildungsregel (etwa erster Buchstabe von Vor- und Nachname, bei Kollision weitere Buchstaben oder eine Ziffer). Der Algorithmus des Prototyps liegt nur im Frontend-Code, der nicht vorliegt
+- Empfehlung: Vorschlag aus Vor- und Nachname, der vor dem Speichern geändert werden kann, weil Kürzel bei ADH oft schon feststehen (etwa aus dem Altsystem)
+- Betrifft: Stufe 1 (Teilschritt 9, Benutzerverwaltung)
+- Status: entschieden
+- Entscheidung: Kürzel wird aus Vor- und Nachname vorgeschlagen (AB, bei Kollision ABE, danach AB2), vor dem Speichern änderbar, danach unveränderlich, der Vorschlag ergibt nie ADH, siehe docs/entscheidungen.md vom 16.10.2026
+
+## A-19 Wer darf Berechtigungen und Zusatzrechte vergeben
+- Felddoku Geteilte Funktionen („Zusatzrechte, Protokollierung“): Die Vergabe liegt ausschließlich bei Administratoren
+- Konzeption 6.2 und 8, PRD 3: Es gibt das Zusatzrecht nutzerverwaltung, mit dem auch Sachbearbeiter/innen die Nutzerverwaltung bedienen können
+- Folge ohne Einschränkung: Wer das Zusatzrecht nutzerverwaltung hat, könnte sich selbst zum Administrator machen oder sich weitere Zusatzrechte geben
+- Empfehlung: Berechtigungsstufe und Zusatzrechte ändern nur Administratoren. Mit dem Zusatzrecht nutzerverwaltung lassen sich Sachbearbeiter/innen anlegen, Stammdaten ändern, deaktivieren und Einmalpasswörter vergeben, aber nicht für Administratoren und nicht für sich selbst
+- Betrifft: Stufe 1 (Teilschritt 9, Benutzerverwaltung)
+- Status: entschieden
+- Entscheidung: Berechtigungsstufe und Zusatzrechte ändern nur Administratoren, mit dem Zusatzrecht nutzerverwaltung nur Sachbearbeiter/innen verwalten, weder Administratoren noch sich selbst, siehe docs/entscheidungen.md vom 16.10.2026

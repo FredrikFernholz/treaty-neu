@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BERECHTIGUNGEN, ZUSATZRECHTE } from '../rechte/rechtematrix.js';
 
 // Angaben zu einem Benutzer, gemeinsam für Backend und Frontend (Konzeption 6.2).
 
@@ -34,3 +35,44 @@ export const emailSchema = z
   .toLowerCase()
   .max(255, 'Die E-Mail-Adresse darf höchstens 255 Zeichen lang sein.')
   .pipe(z.email('Bitte eine gültige E-Mail-Adresse angeben.'));
+
+// Antworten der Benutzerverwaltung (Teilschritt 9). Passwort-Hash und TOTP-Geheimnis
+// kommen in keiner Antwort vor.
+
+export const ZEICHNUNGEN = ['ppa', 'iv', 'ia', 'ohne'] as const;
+
+/** Ein Eintrag in GET /api/v1/benutzer (nur Nutzerverwaltung). */
+export const benutzerSchema = z.object({
+  id: z.number().int(),
+  kuerzel: z.string(),
+  name: z.string(),
+  email: z.string(),
+  berechtigung: z.enum(BERECHTIGUNGEN),
+  zeichnung: z.enum(ZEICHNUNGEN),
+  bezeichnung: z.string().nullable(),
+  aktiv: z.boolean(),
+  passwortWechselNoetig: z.boolean(),
+  zusatzrechte: z.array(z.enum(ZUSATZRECHTE)),
+  version: z.number().int(),
+});
+
+/** Eine laufende Sitzung in GET /api/v1/benutzer/:id. Ohne Token und ohne Token-Hash. */
+export const sitzungsinfoSchema = z.object({
+  id: z.number().int(),
+  erstelltAm: z.string(), // ISO-Zeitpunkt in UTC
+  letzteAktivitaetAm: z.string(),
+  laeuftAbAm: z.string(),
+  ip: z.string(),
+  userAgent: z.string().nullable(),
+});
+
+/** Antwort von GET /api/v1/benutzer/:id */
+export const benutzerDetailSchema = benutzerSchema.extend({ sitzungen: z.array(sitzungsinfoSchema) });
+
+/** Ein Eintrag in GET /api/v1/benutzer/auswahl (für alle Angemeldeten). */
+export const benutzerAuswahlSchema = z.object({ id: z.number().int(), kuerzel: z.string(), name: z.string() });
+
+export type Benutzer = z.infer<typeof benutzerSchema>;
+export type Sitzungsinfo = z.infer<typeof sitzungsinfoSchema>;
+export type BenutzerDetail = z.infer<typeof benutzerDetailSchema>;
+export type BenutzerAuswahl = z.infer<typeof benutzerAuswahlSchema>;

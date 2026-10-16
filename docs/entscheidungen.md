@@ -207,3 +207,15 @@ Quelle ist eine Antwort des Fachteams vom 16.10.2026.
 - Die Testdateien laufen nacheinander (`fileParallelism: false`), weil sich Tests mit der gemeinsamen Testdatenbank sonst gegenseitig stören können. Die Suite braucht dadurch etwa 12 statt 5 Sekunden.
 
 **Auswirkung.** Die Regeln für Kürzel, Name und E-Mail stehen in `backend/src/shared/schemas/benutzer.ts` und gelten auch für die Benutzerverwaltung (Teilschritt 9). Ob alle Kürzel im Altsystem dem Format entsprechen, wird bei der Migration geprüft (Merkposten für Stufe 7).
+
+## 16.10.2026, Benutzerverwaltung: Kürzelvorschlag, Rechtevergabe, Schutzregeln
+
+**Anlass.** Felddokumentation und Konzeption widersprechen sich beim Kürzel (automatisch gebildet oder nur vorgeschlagen, Abgleich A-18) und bei der Frage, wer Rechte vergeben darf (nur Administratoren oder auch Personen mit dem Zusatzrecht nutzerverwaltung, Abgleich A-19). Dazu kamen Schutzregeln gegen das Aussperren und die Frage der Seitenaufteilung.
+
+**Entscheidung.**
+- Das Kürzel wird bei der Neuanlage aus Vor- und Nachname vorgeschlagen, etwa „Anna Beispiel“ → „AB“, bei Kollision „ABE“, danach „AB2“. Vor dem Speichern lässt es sich ändern, nach dem Anlegen ist es unveränderlich (Konzeption 6.2). Der Vorschlag ergibt nie „ADH“.
+- Berechtigungsstufe und Zusatzrechte ändern nur Administratoren. Wer als Sachbearbeiter/in das Zusatzrecht nutzerverwaltung hat, kann Sachbearbeiter/innen anlegen, ändern, deaktivieren und mit einem Einmalpasswort versehen, aber keine Administratoren und nicht sich selbst. Er oder sie kann niemanden zum Administrator machen und niemandem ein Zusatzrecht geben, auch sich selbst nicht.
+- Niemand kann sich selbst deaktivieren oder die eigene Berechtigungsstufe herabsetzen. Der letzte aktive Administrator kann weder deaktiviert noch herabgestuft werden.
+- Die Benutzerliste wird nicht seitenweise aufgeteilt, weil ADH nur wenige Dutzend Benutzer hat. Das ist eine bewusste Ausnahme von der Leitplanke, Listen serverseitig zu paginieren.
+
+**Auswirkung.** Umgesetzt in Teilschritt 9 (`backend/src/modules/benutzer`), mit Tests für jede dieser Regeln.

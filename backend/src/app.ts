@@ -3,6 +3,7 @@ import Fastify, { type FastifyServerOptions } from 'fastify';
 import { pool } from './db/zugriff.js';
 import { neueSperren, registriereAnmelderouten, type Sperren } from './modules/anmeldung/routen.js';
 import { richteZugriffspruefungEin } from './modules/anmeldung/zugriffspruefung.js';
+import { registriereBenutzerrouten } from './modules/benutzer/routen.js';
 import type { Health } from './shared/schemas/health.js';
 
 // Baut die Fastify-Anwendung mit allen Einstellungen und Routen, ohne sie zu starten.
@@ -57,6 +58,7 @@ export function baueApp(
   });
 
   registriereAnmelderouten(app, optionen.sperren ?? neueSperren());
+  registriereBenutzerrouten(app);
 
   return app;
 }

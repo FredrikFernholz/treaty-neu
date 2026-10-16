@@ -12,6 +12,7 @@ export const API_FEHLERCODES = [
   'passwort_falsch', // 403: beim Passwortwechsel stimmt das bisherige Passwort nicht
   'zu_viele_versuche', // 429: Fehlversuchssperre, siehe Header Retry-After
   'ungueltige_eingabe', // 400: Eingabe passt nicht zum Schema
+  'nicht_gefunden', // 404: der angefragte Datensatz existiert nicht
 ] as const;
 
 export const apiFehlerSchema = z.object({
